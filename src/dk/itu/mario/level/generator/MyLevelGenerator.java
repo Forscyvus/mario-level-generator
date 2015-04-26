@@ -9,6 +9,8 @@ import dk.itu.mario.MarioInterface.LevelInterface;
 import dk.itu.mario.level.CustomizedLevel;
 import dk.itu.mario.level.MyLevel;
 
+//TEST COMMENT
+
 public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelGenerator{
 
 	public LevelInterface generateLevel(GamePlay playerMetrics) {
