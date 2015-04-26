@@ -72,7 +72,7 @@ public class MyLevel extends Level{
     }
 
     public MyLevel generateChild(MyLevel otherLevel) {
-    	MyLevel child = clone();
+    	MyLevel child = null;
     	random = new Random();
     	for(int chunkStart = LEVEL_MARGIN_SIZE; chunkStart < getWidth() - LEVEL_MARGIN_SIZE - CHUNK_SIZE; chunkStart += CHUNK_SIZE){
     		

@@ -71,7 +71,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		for (int i = 0; i < levels.size(); i++) {
 			for (int j = 0; j < CHILDRENPERLEVEL; j++) {
 				int randIndex = rng.nextInt()%levels.size();
-				newGeneration.add(((MyLevel)levels.get(i)).generateChild(levels.get(randIndex)));
+				newGeneration.add(((MyLevel)levels.get(i)).generateChild((MyLevellevels.get(randIndex)));
 			}
 			newGeneration.add(levels.get(i));
 		}
