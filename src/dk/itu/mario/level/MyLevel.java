@@ -22,6 +22,7 @@ public class MyLevel extends Level{
     public static long lastSeed;
 
     Random random;
+    private final CHUNK_SIZE = 40;
 
 
     private int difficulty;
@@ -29,6 +30,12 @@ public class MyLevel extends Level{
 	private int gaps;
 
 	private GamePlay player;
+
+	private ChunkType[] chunkTypes;
+
+	public enum ChunkType {
+		FLAT, ENEMY, GAP, COIN, BLOCK, PLATFORM
+	}
 
 	public static MyLevel generateInitialLevel(GamePlay player) {
 		return null;
@@ -51,9 +58,48 @@ public class MyLevel extends Level{
 
     }
 
-    public MyLevel generateChild(MyLevel level) {
-    	return null;
+    public MyLevel generateChild(MyLevel otherLevel) {
+    	MyLevel child = clone();
+    	random = new Random();
+    	for(int chunkStart = 10; chunkStart < getWidth() - 10 - CHUNK_SIZE; chunkStart += CHUNK_SIZE){
+    		 //hardcoded with chunks 10 blocks away from edge of screen
+    		int check = random.nextInt(2);  //50-50 chance to use otherLevel's chunk
+    		byte[][] map = otherLevel.getMap();
+    		SpriteTemplate[][] st = otherLevel.getSpriteTemplate();
+    		if(check == 1){
+    			for(int i = chunkStart; i < chunkStart + CHUNK_SIZE - 4; i++){
+    				for(int j = 0; j < getHeight(); j++){
+    					child.setBlock(i, j, map[i][j]);
+	    				child.setSpriteTemplate(i, j, st[i][j]);
+    				}
+    			}
+    		}
+    	}
+    	return child;
     }
+
+	public MyLevel clone() throws CloneNotSupportedException {
+
+	    	MyLevel clone = new MyLevel(width, height);
+
+	    	clone.xExit = xExit;
+	    	clone.yExit = yExit;
+	    	byte[][] map = getMap();
+	    	SpriteTemplate[][] st = getSpriteTemplate();
+	    	
+	    	for (int i = 0; i < map.length; i++)
+	    		for (int j = 0; j < map[i].length; j++) {
+	    			clone.setBlock(i, j, map[i][j]);
+	    			clone.setSpriteTemplate(i, j, st[i][j]);
+	    	}
+	    	clone.BLOCKS_COINS = BLOCKS_COINS;
+	    	clone.BLOCKS_EMPTY = BLOCKS_EMPTY;
+	    	clone.BLOCKS_POWER = BLOCKS_POWER;
+	    	clone.ENEMIES = ENEMIES;
+	    	clone.COINS = COINS;
+	    	
+	        return clone;
+	}
 
    //  public void creat(long seed, int difficulty, int type)
    //  {
