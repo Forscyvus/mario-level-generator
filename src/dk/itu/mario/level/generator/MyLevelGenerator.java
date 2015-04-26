@@ -33,14 +33,28 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		//LevelInterface level = new MyLevel(320,15,new Random().nextLong(),1,LevelInterface.TYPE_OVERGROUND,playerMetrics);
 		//return level;
 
+		int deaths = playerMetrics.timesOfDeathByRedTurtle + 
+		playerMetrics.timesOfDeathByGoomba + 
+		playerMetrics.timesOfDeathByGreenTurtle + 
+		playerMetrics.timesOfDeathByArmoredTurtle + 
+		playerMetrics.timesOfDeathByJumpFlower + 
+		playerMetrics.timesOfDeathByCannonBall + 
+		playerMetrics.timesOfDeathByChompFlower +
+		(int)Math.floor(playerMetrics.timesOfDeathByFallingIntoGap);
+
+		int difficulty = 3 - deaths;
+
 		ArrayList<LevelInterface> initialPop = new ArrayList<LevelInterface>();
 		for (int i = 0; i < INITIALPOPSIZE; i++) {
-			initialPop.add(MyLevel.generateInitialLevel(playerMetrics)); //static method will determine difficulty/etc from metrics
+			initialPop.add(new MyLevel(340,15,rng.nextLong(),difficulty,LevelInterface.TYPE_OVERGROUND,playerMetrics)); //static method will determine difficulty/etc from metrics
 		}
-		ArrayList<LevelInterface> generation = getSuccessors(initialPop);
+
+		return initialPop.get(0);
+		
+		//ArrayList<LevelInterface> generation = getSuccessors(initialPop);
 
 
-		//DO THE GENETICS
+		//DO THE GENETICS loop and evaluate
 
 
 
@@ -54,10 +68,10 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 
 	public ArrayList<LevelInterface> getSuccessors(ArrayList<LevelInterface> levels) {
 		ArrayList<LevelInterface> newGeneration = new ArrayList<LevelInterface>();
-		for (int i = 0; i < levels.size(), i++) {
-			for (int j = 0; j < CHILDRENPERLEVEL, j++) {
+		for (int i = 0; i < levels.size(); i++) {
+			for (int j = 0; j < CHILDRENPERLEVEL; j++) {
 				int randIndex = rng.nextInt()%levels.size();
-				newGeneration.add(levels.get(i).generateChild(levels.get(randIndex)));
+				newGeneration.add(((MyLevel)levels.get(i)).generateChild(levels.get(randIndex)));
 			}
 			newGeneration.add(levels.get(i));
 		}

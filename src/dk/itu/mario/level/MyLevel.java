@@ -22,7 +22,8 @@ public class MyLevel extends Level{
     public static long lastSeed;
 
     Random random;
-    private final CHUNK_SIZE = 40;
+    private final int CHUNK_SIZE = 40;
+    private final int LEVEL_MARGIN_SIZE = 10;
 
 
     private int difficulty;
@@ -32,18 +33,22 @@ public class MyLevel extends Level{
 	private GamePlay player;
 
 	private ChunkType[] chunkTypes;
+	private int numChunks;
+
 
 	public enum ChunkType {
 		FLAT, ENEMY, GAP, COIN, BLOCK, PLATFORM
 	}
 
-	public static MyLevel generateInitialLevel(GamePlay player) {
-		return null;
-	}
+	// public static MyLevel generateInitialLevel(GamePlay player) {
+	// 	return new Mylevel();
+	// }
 	
 	public MyLevel(int width, int height)
     {
 		super(width, height);
+		numChunks = (width - 2*LEVEL_MARGIN_SIZE) / CHUNK_SIZE;
+ 
     }
 
 
@@ -51,22 +56,31 @@ public class MyLevel extends Level{
     {
         this(width, height);
         player = playerMetrics;
-        creat(seed, difficulty, type);
+        creat(seed, difficulty, type); //generates initial level
     }
 
-    public void creat(long seed, int difficulty, int type){
+    public void creat(long seed, int difficulty,int type){
 
+    	initializeFloor();
+
+    }
+
+    public void initializeFloor(){
+    	for (int x = 0; x < getWidth(); x++) {
+    		setBlock(x, getHeight()-1, GROUND);
+    	}
     }
 
     public MyLevel generateChild(MyLevel otherLevel) {
     	MyLevel child = clone();
     	random = new Random();
-    	for(int chunkStart = 10; chunkStart < getWidth() - 10 - CHUNK_SIZE; chunkStart += CHUNK_SIZE){
-    		 //hardcoded with chunks 10 blocks away from edge of screen
+    	for(int chunkStart = LEVEL_MARGIN_SIZE; chunkStart < getWidth() - LEVEL_MARGIN_SIZE - CHUNK_SIZE; chunkStart += CHUNK_SIZE){
+    		
     		int check = random.nextInt(2);  //50-50 chance to use otherLevel's chunk
     		byte[][] map = otherLevel.getMap();
     		SpriteTemplate[][] st = otherLevel.getSpriteTemplate();
     		if(check == 1){
+    			//change chunk type
     			for(int i = chunkStart; i < chunkStart + CHUNK_SIZE - 4; i++){
     				for(int j = 0; j < getHeight(); j++){
     					child.setBlock(i, j, map[i][j]);
@@ -78,6 +92,7 @@ public class MyLevel extends Level{
     	return child;
     }
 
+
 	public MyLevel clone() throws CloneNotSupportedException {
 
 	    	MyLevel clone = new MyLevel(width, height);
@@ -86,6 +101,9 @@ public class MyLevel extends Level{
 	    	clone.yExit = yExit;
 	    	byte[][] map = getMap();
 	    	SpriteTemplate[][] st = getSpriteTemplate();
+
+	    	clone.numChunks = numChunks;
+	    	clone.chunkTypes = chunkTypes;
 	    	
 	    	for (int i = 0; i < map.length; i++)
 	    		for (int j = 0; j < map[i].length; j++) {
