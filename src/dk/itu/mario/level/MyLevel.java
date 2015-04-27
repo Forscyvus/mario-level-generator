@@ -98,7 +98,7 @@ public class MyLevel extends Level{
     		} else {
     			chunkTypes[i] = Archetype.HUNTER;
     		}
-    		
+    		chunkTypes[i] = Archetype.JUMPER;
     		floorheight = generateChunk(i, floorheight);
     	}
         fixWalls();
@@ -125,7 +125,10 @@ public class MyLevel extends Level{
         odds[ODDS_STRAIGHT] = 20;
         odds[ODDS_HILL_STRAIGHT] = 30;
         odds[ODDS_TUBES] = 4 + 4*difficulty;
-        odds[ODDS_JUMP] = 3;
+        odds[ODDS_JUMP] = 2;
+        if(difficulty > 1){
+            odds[ODDS_JUMP] += 1;
+        }
         odds[ODDS_CANNONS] = 10 + 5*difficulty;
 
         for (int i = 0; i < odds.length; i++) {
@@ -139,7 +142,7 @@ public class MyLevel extends Level{
         }
 
 
-        int length = LEVEL_MARGIN_SIZE;
+        int length = chunkloc;
 
         //create the chunk, zone by zone
          while (length < chunkloc + CHUNK_SIZE) {
@@ -165,10 +168,10 @@ public class MyLevel extends Level{
         int type = 0;
 
         for (int i = 0; i < odds.length; i++) {
-            if(odds[ODDS_JUMP] <= t*2+30){
+            /*if(odds[ODDS_JUMP] <= t*2+30){
                 type = ODDS_JUMP;
                 break;
-        }
+            }*/
             if (odds[i] <= t) {
                 type = i;
             }
@@ -176,14 +179,19 @@ public class MyLevel extends Level{
 
         switch (type) {
         case ODDS_STRAIGHT:
+            //System.out.println("Built straight");
             return buildStraight(x, maxLength, false);
         case ODDS_HILL_STRAIGHT:
+            //System.out.println("Built hill");
             return buildHillStraight(x, maxLength);
         case ODDS_TUBES:
+            //System.out.println("Built tubes");
             return buildTubes(x, maxLength);
         case ODDS_JUMP:
+            //System.out.println("Built jump");
             return buildJump(x, maxLength);
         case ODDS_CANNONS:
+            //System.out.println("Built cannons");
             return buildCannons(x, maxLength);
         }
         return 0;
