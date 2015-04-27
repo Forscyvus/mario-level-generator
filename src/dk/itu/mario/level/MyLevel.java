@@ -10,13 +10,22 @@ import dk.itu.mario.engine.sprites.Enemy;
 
 
 public class MyLevel extends Level{
+	
+	
+	
+	
 	//Store information about the level
 	 public   int ENEMIES = 0; //the number of enemies the level contains
 	 public   int BLOCKS_EMPTY = 0; // the number of empty blocks
 	 public   int BLOCKS_COINS = 0; // the number of coin blocks
 	 public   int BLOCKS_POWER = 0; // the number of power blocks
 	 public   int COINS = 0; //These are the coins that Mario collect
-
+	 public int TOTAL_GAP_SIZE = 0;
+	 public int TOTAL_PLATFORMS = 0; //not the floor
+	 public int AVG_PLATFORM_SIZE = 0;
+	 public int SHELLED_ENEMIES = 0;
+	 public int TALL_WALLS = 0;//walls/pipes/etc that cannot be directly jumped over (require another platform)
+	 
  
 	private static Random levelSeedRandom = new Random();
     public static long lastSeed;
@@ -49,6 +58,7 @@ public class MyLevel extends Level{
 		super(width, height);
 		numChunks = (width - 2*LEVEL_MARGIN_SIZE) / CHUNK_SIZE;
 		rng = new Random();
+		chunkTypes = new Archetype[numChunks];
  
     }
 
