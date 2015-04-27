@@ -21,7 +21,7 @@ import dk.itu.mario.level.MyLevel;
 
 public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelGenerator{
 
-	private final int INITIALPOPSIZE = 20;
+	private final int INITIALPOPSIZE = 1;
 	private final int CHILDRENPERLEVEL = 5;
 	Random rng;
 
@@ -43,15 +43,17 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		(int)Math.floor(playerMetrics.timesOfDeathByFallingIntoGap);
 
 		int difficulty = 3 - deaths;
+		
+		int[] playerScores = getPlayerScores(playerMetrics);
 
-		ArrayList<LevelInterface> initialPop = new ArrayList<LevelInterface>();
+		ArrayList<MyLevel> initialPop = new ArrayList<MyLevel>();
 		for (int i = 0; i < INITIALPOPSIZE; i++) {
-			initialPop.add(new MyLevel(340,15,rng.nextLong(),difficulty,LevelInterface.TYPE_OVERGROUND,playerMetrics)); //static method will determine difficulty/etc from metrics
+			initialPop.add(new MyLevel(340,15,rng.nextLong(),playerScores,difficulty,LevelInterface.TYPE_OVERGROUND,playerMetrics)); //static method will determine difficulty/etc from metrics
 		}
 
 		return initialPop.get(0);
 		
-		//ArrayList<LevelInterface> generation = getSuccessors(initialPop);
+		//ArrayList<MyLevel> generation = getSuccessors(initialPop);
 
 
 		//DO THE GENETICS loop and evaluate
@@ -66,12 +68,12 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		return null;
 	}
 
-	public ArrayList<LevelInterface> getSuccessors(ArrayList<LevelInterface> levels) {
-		ArrayList<LevelInterface> newGeneration = new ArrayList<LevelInterface>();
+	public ArrayList<MyLevel> getSuccessors(ArrayList<MyLevel> levels) {
+		ArrayList<MyLevel> newGeneration = new ArrayList<MyLevel>();
 		for (int i = 0; i < levels.size(); i++) {
 			for (int j = 0; j < CHILDRENPERLEVEL; j++) {
 				int randIndex = rng.nextInt()%levels.size();
-				newGeneration.add(((MyLevel)levels.get(i)).generateChild((MyLevellevels.get(randIndex)));
+				newGeneration.add(levels.get(i).generateChild(levels.get(randIndex)));
 			}
 			newGeneration.add(levels.get(i));
 		}
@@ -80,11 +82,47 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 
 
 	public int evaluateLevel(LevelInterface level, GamePlay player, int difficulty) {
-
+		return 0;
 	}
 
 	public int evaluateChunk(LevelInterface level, int chunkStartColumn, int difficulty, int chunkWidth) {
-
+		return 0;
+	}	
+	
+	public int[] getPlayerScores(GamePlay player){
+		int kills = player.RedTurtlesKilled //number of Red Turtle Mario killed
+				+ player.GreenTurtlesKilled//number of Green Turtle Mario killed
+				+ player.ArmoredTurtlesKilled //number of Armored Turtle Mario killed
+				+ player.GoombasKilled //number of Goombas Mario killed
+				+player.CannonBallKilled //number of Cannon Ball Mario killed
+				+player.JumpFlowersKilled //number of Jump Flower Mario killed
+				+player.ChompFlowersKilled;
+		
+		int[] scores = new int[3];
+		
+		scores[0] = (int)(100*(player.jumpsNumber / (.7 * player.totalTime)));
+		scores[1] = (int)(100*(player.coinsCollected / (double)player.totalCoins));
+		scores[2] = (int)(100*( kills / (double)player.totalEnemies));
+		
+//		System.out.println("Jumps, Time, jumps/time");
+//		System.out.println(player.jumpsNumber);
+//		System.out.println(player.totalTime);
+//		System.out.println(player.jumpsNumber / (.7 *player.totalTime));
+//		
+//		System.out.println("-----");
+//		System.out.println("coins, total, coins/total");
+//		System.out.println(player.coinsCollected);
+//		System.out.println(player.totalCoins);
+//		System.out.println(player.coinsCollected / (double)player.totalCoins);
+//		
+//		System.out.println("-----");
+//		System.out.println("enemies, total, enemies/total");
+//		System.out.println(kills);
+//		System.out.println(player.totalEnemies);
+//		System.out.println( kills / (double)player.totalEnemies);
+		
+		
+		return scores;
 	}
 
 

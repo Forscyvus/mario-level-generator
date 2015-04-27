@@ -15,13 +15,13 @@ public class MyLevel extends Level{
 	 public   int BLOCKS_EMPTY = 0; // the number of empty blocks
 	 public   int BLOCKS_COINS = 0; // the number of coin blocks
 	 public   int BLOCKS_POWER = 0; // the number of power blocks
-	 public   int COINS = 0; //These are the coins in boxes that Mario collect
+	 public   int COINS = 0; //These are the coins that Mario collect
 
  
 	private static Random levelSeedRandom = new Random();
     public static long lastSeed;
 
-    Random random;
+    Random rng;
     private final int CHUNK_SIZE = 40;
     private final int LEVEL_MARGIN_SIZE = 10;
 
@@ -31,13 +31,13 @@ public class MyLevel extends Level{
 	private int gaps;
 
 	private GamePlay player;
+	private int[] playerScores;
 
-	private ChunkType[] chunkTypes;
+	private Archetype[] chunkTypes;
 	private int numChunks;
-
-
-	public enum ChunkType {
-		FLAT, ENEMY, GAP, COIN, BLOCK, PLATFORM
+	
+	public enum Archetype {
+		HUNTER, HOARDER, JUMPER
 	}
 
 	// public static MyLevel generateInitialLevel(GamePlay player) {
@@ -48,35 +48,95 @@ public class MyLevel extends Level{
     {
 		super(width, height);
 		numChunks = (width - 2*LEVEL_MARGIN_SIZE) / CHUNK_SIZE;
+		rng = new Random();
  
     }
 
 
-	public MyLevel(int width, int height, long seed, int difficulty, int type, GamePlay playerMetrics)
+	public MyLevel(int width, int height, long seed, int[] playerScores, int difficulty, int type, GamePlay playerMetrics)
     {
         this(width, height);
         player = playerMetrics;
+        this.playerScores = playerScores; 
         creat(seed, difficulty, type); //generates initial level
     }
 
     public void creat(long seed, int difficulty,int type){
-
+    	//create exit
+    	xExit = getWidth() - LEVEL_MARGIN_SIZE;
+        yExit = 14;
+        
     	initializeFloor();
-
+    	int floorheight = getHeight()-1; //for stitching purposes
+    	
+    	//generate chunks
+    	int playerScoreTotal = playerScores[0] + playerScores[1] + playerScores[2];
+    	for (int i = 0; i < numChunks; i++){
+    		int rando = rng.nextInt(playerScoreTotal);
+    		if (rando < playerScores[0]){
+    			chunkTypes[i] = Archetype.JUMPER;
+    		} else if (rando - playerScores[0] < playerScores[1]) {
+    			chunkTypes[i] = Archetype.HOARDER;
+    		} else {
+    			chunkTypes[i] = Archetype.HUNTER;
+    		}
+    		
+    		floorheight = generateChunk(i, floorheight);
+    	}
+    }
+    
+    public int generateChunk(int i, int floorheight) {
+    	
+    	int chunkloc = LEVEL_MARGIN_SIZE + i*CHUNK_SIZE;
+    	switch(chunkTypes[i]) {
+    	case JUMPER:
+    		floorheight = generateJumperChunk(chunkloc, floorheight);
+    		break;
+    	case HOARDER:
+    		floorheight = generateHoarderChunk(chunkloc, floorheight);
+    		break;
+    	case HUNTER:
+    		floorheight = generateHunterChunk(chunkloc, floorheight);
+    		break;
+    	}
+    	
+    	return floorheight;
     }
 
-    public void initializeFloor(){
+    private int generateJumperChunk(int chunkloc, int floorheight) {
+		// TODO Auto-generated method stub
+		return floorheight;
+	}
+
+
+	private int generateHoarderChunk(int chunkloc, int floorheight) {
+		// TODO Auto-generated method stub
+		return floorheight;
+	}
+
+
+	private int generateHunterChunk(int chunkloc, int floorheight) {
+		// TODO Auto-generated method stub
+		return floorheight;
+	}
+
+
+	public void initializeFloor(){
     	for (int x = 0; x < getWidth(); x++) {
-    		setBlock(x, getHeight()-1, GROUND);
+    		setBlock(x, getHeight()-1, HILL_TOP);
     	}
     }
 
     public MyLevel generateChild(MyLevel otherLevel) {
     	MyLevel child = null;
-    	random = new Random();
+    	try {
+    		child = clone();
+    	} catch (CloneNotSupportedException cnsE) {
+    		return null;
+    	}
     	for(int chunkStart = LEVEL_MARGIN_SIZE; chunkStart < getWidth() - LEVEL_MARGIN_SIZE - CHUNK_SIZE; chunkStart += CHUNK_SIZE){
     		
-    		int check = random.nextInt(2);  //50-50 chance to use otherLevel's chunk
+    		int check = rng.nextInt(2);  //50-50 chance to use otherLevel's chunk
     		byte[][] map = otherLevel.getMap();
     		SpriteTemplate[][] st = otherLevel.getSpriteTemplate();
     		if(check == 1){
@@ -103,7 +163,7 @@ public class MyLevel extends Level{
 	    	SpriteTemplate[][] st = getSpriteTemplate();
 
 	    	clone.numChunks = numChunks;
-	    	clone.chunkTypes = chunkTypes;
+	    	clone.chunkTypes = chunkTypes.clone();
 	    	
 	    	for (int i = 0; i < map.length; i++)
 	    		for (int j = 0; j < map[i].length; j++) {
