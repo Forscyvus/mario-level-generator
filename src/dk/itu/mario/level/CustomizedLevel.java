@@ -485,17 +485,17 @@ public class CustomizedLevel extends Level implements LevelInterface {
                 if (b[0][0] == b[1][0] && b[0][1] == b[1][1]) {
                     if (b[0][0] == b[0][1]) {
                         if (b[0][0]) {
-                            level.setBlock(x, y, (byte) (1 + 9 * 16 + to));
+                            level.setBlock(x, y, (byte) (1 + 9 * 16 + to));//GROUND
                         } else {
                             // KEEP OLD BLOCK!
                         }
                     } else {
                         if (b[0][0]) {
                             //down grass top?
-                            level.setBlock(x, y, (byte) (1 + 10 * 16 + to));
+                            level.setBlock(x, y, (byte) (1 + 10 * 16 + to));//grass facing dowm
                         } else {
                             //up grass top
-                            level.setBlock(x, y, (byte) (1 + 8 * 16 + to));
+                            level.setBlock(x, y, (byte) (1 + 8 * 16 + to));//what you stand on
                         }
                     }
                 } else if (b[0][0] == b[0][1] && b[1][0] == b[1][1]) {
