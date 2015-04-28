@@ -160,11 +160,11 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 //		System.out.println(score);
 		
 		//tune total gap size to difficulty
-		score += (int) (level.numChunks * (200 - 4*(Math.abs(difficulty*3*level.numChunks - level.TOTAL_GAP_SIZE)))); //magic numbers
+		score += (int) (level.numChunks * (100 - 4*(Math.abs(difficulty*3*level.numChunks - level.TOTAL_GAP_SIZE)))); //magic numbers
 		//tune total enemies to difficulty
-		score += (int) (level.numChunks * (200 - 4*(Math.abs(difficulty*3*level.numChunks - level.ENEMIES))));
+		score += (int) (level.numChunks * (100 - 4*(Math.abs(difficulty*3*level.numChunks - level.ENEMIES))));
 		//there should be about one powerup per chunk
-		score += (int) (level.numChunks * (200 - 30*(Math.abs(level.BLOCKS_POWER - level.numChunks))));
+		score += (int) (level.numChunks * (100 - 30*(Math.abs(level.BLOCKS_POWER - level.numChunks))));
 		//cannons are hard, should scale by difficulty
 		int numCannons = 0;
 		for (int x = 0; x < level.getWidth(); x++){
@@ -175,7 +175,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 			}
 		}
 		int idealNumCannons = difficulty * 8;
-		score += (int) (level.numChunks * (200 - 20*(Math.abs(idealNumCannons - numCannons))));
+		score += (int) (level.numChunks * (100 - 20*(Math.abs(idealNumCannons - numCannons))));
 		
 		
 		return score;
@@ -236,7 +236,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 				int strandedRows = coinRows.size() - platformRows - groundRows;
 				score -= 100*strandedRows;
 				
-				score += (int) (200 - Math.abs(playerCoinsCollected - (100*(platformRows / (double)plats.size())))); //match platforms with coins ratio to coin collection ratio
+				score += (int) (300 - 15*(Math.abs(playerCoinsCollected - (100*(platformRows / (double)plats.size()))))); //match platforms with coins ratio to coin collection ratio
 				
 				//score distribution of coins
 				double coinMeanX = 0;
@@ -257,8 +257,8 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 				coinDiffMeanX = Math.sqrt(coinDiffMeanX);
 				coinDiffMeanY /= (double) coinRows.size();
 				coinDiffMeanY = Math.sqrt(coinDiffMeanY);
-				int coinYstdevScore = (int) (150 - 25*(Math.abs(4-coinDiffMeanY))); //MAGIC NUMBERS
-				int coinXstdevScore = (int) (150 - 15*(Math.abs(10-coinDiffMeanX)));
+				int coinYstdevScore = (int) (150 - 35*(Math.abs(4-coinDiffMeanY))); //MAGIC NUMBERS
+				int coinXstdevScore = (int) (150 - 25*(Math.abs(10-coinDiffMeanX)));
 				score += coinYstdevScore + coinXstdevScore;
 				
 				
@@ -496,8 +496,8 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 
 	private boolean isSurface(byte b) {
 		
-		return b == (byte) (14) || b == (byte)(11)  || b == (byte) (10+0*16) || b == (byte) (5 + 8 * 16) || b == (byte) (4 + 8 * 16) || b == (byte) (6 + 8 * 16) || b == (byte) (4 + 11 * 16) || b == (byte) (6 + 11 * 16) || b == (byte) (0 + 1 * 16) || b == (byte) (4 + 2 + 1 * 16) || b == (byte) (4+1+1*16) || b == (byte)(3+1*16);
-		//           CANNON           TUBETOPRIGHT             TUBETOPLEFT            HILLTOP                 HILLTOPLEFT                HILLTOPRIGHT              HILLLTOPLEFTIN             HILLTOPIN                        BLOCKEMPTY                       BLOCKPOWER                BLOCKCOIN
+		return  b == (byte)(11)  || b == (byte) (10+0*16) || b == (byte) (5 + 8 * 16) || b == (byte) (4 + 8 * 16) || b == (byte) (6 + 8 * 16) || b == (byte) (4 + 11 * 16) || b == (byte) (6 + 11 * 16) || b == (byte) (0 + 1 * 16) || b == (byte) (4 + 2 + 1 * 16) || b == (byte) (4+1+1*16) || b == (byte)(3+1*16);
+		//           TUBETOPRIGHT             TUBETOPLEFT            HILLTOP                 HILLTOPLEFT                HILLTOPRIGHT              HILLLTOPLEFTIN             HILLTOPIN                        BLOCKEMPTY                       BLOCKPOWER                BLOCKCOIN
 	}
 
 	private class Platform {
