@@ -261,8 +261,9 @@ setBlock(chunkloc,0,ROCK);
          while (length < chunkloc + CHUNK_SIZE) {
             length += buildZone(length, chunkloc + CHUNK_SIZE - length, Archetype.HUNTER);
         }
-        
-        addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 2, Archetype.HUNTER);
+        if(difficulty > 0){
+            addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 2, Archetype.HUNTER);
+        }
         if(difficulty == 3){
             addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 2, Archetype.HUNTER);
         }
@@ -307,11 +308,11 @@ setBlock(chunkloc,0,ROCK);
             
             Archetype playerChoice;
             //randomly choose player's "preferred" chunk type
-            int playerScoreTotal = playerScores[0] + playerScores[1] + playerScores[2];
+            int playerScoreTotal = playerScores[0] + playerScores[1] + playerScores[2] + 1;
             int rando = rng.nextInt(playerScoreTotal);
-            if (rando < playerScores[0]){
+            if (rando-1 < playerScores[0]){
                 playerChoice = Archetype.JUMPER;
-            } else if (rando - playerScores[0] < playerScores[1]) {
+            } else if (rando-1 - playerScores[0] < playerScores[1]) {
                 playerChoice = Archetype.HOARDER;
             } else {
                 playerChoice = Archetype.HUNTER;
@@ -489,32 +490,48 @@ setBlock(chunkloc,0,ROCK);
             }
         }
         plats = findCoinLines(map);
-        for(Platform plat : plats){
+       for(Platform plat : plats){
             int next = rng.nextInt(8);//chance is out of 4/8
-            if(next == 0){//move down
-                if(map[plat.x][plat.y-1] ==0){
+            if(next == 0 && plat.y + 1 < getHeight()){//move down
+                if(map[plat.x][plat.y+1] == 0){
                     for(int x = plat.x; x < plat.x + plat.length; x++){
+                        if(!isGround(getBlock(x, plat.y+1)){
+                            setBlock(x, plat.y+1, getBlock(x, plat.y));
+                            setBlock(x, plat.y, (byte)0);
+                        }
+                    }
+                }
+            } else if(next == 1 && plat.y > 0){//move up
+                for(int x = plat.x; x < plat.x + plat.length; x++){
+                    if(!isGround(getBlock(x, plat.y-1)){
                         setBlock(x, plat.y-1, getBlock(x, plat.y));
                         setBlock(x, plat.y, (byte)0);
                     }
                 }
-            } else if(next == 1){//move up
-                for(int x = plat.x; x < plat.x + plat.length; x++){
-                    setBlock(x, plat.y+1, getBlock(x, plat.y));
-                    setBlock(x, plat.y, (byte)0);
-                }
             } else if(next == 2){//move left
                 for(int x = plat.x; x < plat.x + plat.length; x++){
-                    setBlock(x-1, plat.y, getBlock(x, plat.y));
-                    setBlock(x, plat.y, (byte)0);
+                    if(!isGround(getBlock(x-1, plat.y)){
+                        setBlock(x-1, plat.y, getBlock(x, plat.y));
+                        setBlock(x, plat.y, (byte)0);
+                    }
                 }
             } else if(next == 3){//move right
                 for(int x = plat.x + plat.length -1; x >= plat.x; x--){
-                    setBlock(x+1, plat.y, getBlock(x, plat.y));
-                    setBlock(x, plat.y, (byte)0);
+                    if(!isGround(getBlock(x+1, plat.y)){
+                        setBlock(x+1, plat.y, getBlock(x, plat.y));
+                        setBlock(x, plat.y, (byte)0);
+                    }
                 }
             }
         }
+    }
+
+    public boolean isGround(byte b) {
+        int ib = b;
+        if(ib < 0) ib += 256;
+        int r = ib / 16;
+        int c = ib % 16;
+        return (r == 8 && c >=0 && c < 3) || (r == 11 && c >= 0 && c <3);
     }
 
     public ArrayList<Platform> findBlockRows(byte[][] chunk) {
