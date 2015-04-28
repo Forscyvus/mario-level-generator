@@ -98,7 +98,7 @@ public class MyLevel extends Level{
     		} else {
     			chunkTypes[i] = Archetype.HUNTER;
     		}
-    		chunkTypes[i] = Archetype.HUNTER;
+            chunkTypes[i] = Archetype.HUNTER;
     		floorheight = generateChunk(i, floorheight);
     	}
         System.out.println("Coins: " + COINS + ", Total Gap Width: " + TOTAL_GAP_SIZE + ", Enemies: " + ENEMIES);
@@ -264,6 +264,11 @@ public class MyLevel extends Level{
             length += buildZone(length, chunkloc + CHUNK_SIZE - length, Archetype.HUNTER);
         }
         
+        addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 4, Archetype.HUNTER);
+        if(difficulty == 3){
+            addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 4, Archetype.HUNTER);
+        }
+
         int floor = height - 1 - rng.nextInt(4);
 
         for (int x = length; x < chunkloc + CHUNK_SIZE; x++) {
@@ -305,10 +310,16 @@ public class MyLevel extends Level{
     		byte[][] map = otherLevel.getMap();
     		SpriteTemplate[][] st = otherLevel.getSpriteTemplate();
     		if(check == 1){
-
-    			//child.chunkTypes[chunk] = otherLevel.chunkTypes[chunk];
+                int chunk = (chunkStart - LEVEL_MARGIN_SIZE)/CHUNK_SIZE;
+    			child.chunkTypes[chunk] = otherLevel.chunkTypes[chunk];
     			for(int i = chunkStart; i < chunkStart + CHUNK_SIZE - 4; i++){
     				for(int j = 0; j < getHeight(); j++){
+                        if(child.getBlock(i,j)==COIN){
+                            COINS--;
+                        }
+                        if(child.getBlock(i,j)==COIN){
+                            COINS--;
+                        }
     					child.setBlock(i, j, map[i][j]);
 	    				child.setSpriteTemplate(i, j, st[i][j]);
     				}
