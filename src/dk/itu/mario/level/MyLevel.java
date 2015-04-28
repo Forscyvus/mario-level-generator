@@ -98,7 +98,7 @@ public class MyLevel extends Level{
     		} else {
     			chunkTypes[i] = Archetype.HUNTER;
     		}
-            chunkTypes[i] = Archetype.JUMPER;
+            //chunkTypes[i] = Archetype.JUMPER;
     		floorheight = generateChunk(i, floorheight);
     	}
         System.out.println("Coins: " + COINS + ", Total Gap Width: " + TOTAL_GAP_SIZE + ", Enemies: " + ENEMIES);
