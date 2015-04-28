@@ -119,13 +119,12 @@ public class MyLevel extends Level{
     		floorheight = generateHunterChunk(chunkloc, floorheight);
     		break;
     	}
-setBlock(chunkloc,0,ROCK);
     	return floorheight;
     }
 
     private int generateJumperChunk(int chunkloc, int floorheight) {
         odds[ODDS_STRAIGHT] = 10;
-        odds[ODDS_HILL_STRAIGHT] = 40;
+        odds[ODDS_HILL_STRAIGHT] = 60;
         odds[ODDS_TUBES] = 20;
         odds[ODDS_JUMP] = 10;
         if(difficulty > 1){
@@ -539,7 +538,7 @@ setBlock(chunkloc,0,ROCK);
         if(ib < 0) ib += 256;
         int r = ib / 16;
         int c = ib % 16;
-        return (r == 8 && c >=0 && c < 3) || (r == 11 && c >= 0 && c <3);
+        return (r > 7 && r < 12 && c >=0 && c < 8);
     }
 
     public ArrayList<Platform> findBlockRows(byte[][] chunk) {
@@ -824,6 +823,7 @@ setBlock(chunkloc,0,ROCK);
                         decorate(xxo - 1, xxo + l + 1, h, chunkType);
                         if(chunkType == Archetype.HOARDER){
                             decorate(xxo - 1, xxo + l + 1, h, chunkType);
+                            decorate(xxo - 1, xxo + l + 1, h, chunkType);
                         }
                         keepGoing = false;
                     }
@@ -967,6 +967,7 @@ setBlock(chunkloc,0,ROCK);
                 decorate(xo, xo + length, floor, chunkType);
                 if(chunkType == Archetype.HOARDER){
                     decorate(xo, xo + length, floor,chunkType);
+                    decorate(xo, xo + length, floor,chunkType);
                 }
             }
         }
@@ -997,6 +998,20 @@ setBlock(chunkloc,0,ROCK);
                 for(int x = xStart + 1 + s; x < xLength - 1 - e; x++){
                     setBlock(x, floor - 2, COIN);
                     COINS++;
+                }
+            }
+        }
+
+        if(chunkType == Archetype.HOARDER){
+            s = rng.nextInt(4);
+            e = rng.nextInt(4);
+
+            if (floor - 2 > 0){
+                if ((xLength - 1 - e) - (xStart + 1 + s) > 1){
+                    for(int x = xStart + 1 + s; x < xLength - 1 - e; x++){
+                        setBlock(x, floor - 2, COIN);
+                        COINS++;
+                    }
                 }
             }
         }
