@@ -122,12 +122,12 @@ public class MyLevel extends Level{
     }
 
     private int generateJumperChunk(int chunkloc, int floorheight) {
-        odds[ODDS_STRAIGHT] = 20;
-        odds[ODDS_HILL_STRAIGHT] = 30;
-        odds[ODDS_TUBES] = 4 + 4*difficulty;
-        odds[ODDS_JUMP] = 2;
+        odds[ODDS_STRAIGHT] = 10;
+        odds[ODDS_HILL_STRAIGHT] = 40;
+        odds[ODDS_TUBES] = 20;
+        odds[ODDS_JUMP] = 5;
         if(difficulty > 1){
-            odds[ODDS_JUMP] += 1;
+            odds[ODDS_JUMP] += 10;
         }
         odds[ODDS_CANNONS] = 10 + 5*difficulty;
 
@@ -145,8 +145,9 @@ public class MyLevel extends Level{
         int length = chunkloc;
 
         //create the chunk, zone by zone
-         while (length < chunkloc + CHUNK_SIZE) {
-            length += buildZone(length, Math.min(CHUNK_SIZE, getWidth() - length));
+         while (length < chunkloc + CHUNK_SIZE - 4) {
+            length += buildZone(length, Math.min(CHUNK_SIZE - 4, getWidth() - length));
+            setBlock(length, 0, COIN);
         }
 
         int floor = height - 1 - rng.nextInt(4);
@@ -168,10 +169,6 @@ public class MyLevel extends Level{
         int type = 0;
 
         for (int i = 0; i < odds.length; i++) {
-            /*if(odds[ODDS_JUMP] <= t*2+30){
-                type = ODDS_JUMP;
-                break;
-            }*/
             if (odds[i] <= t) {
                 type = i;
             }
@@ -179,19 +176,14 @@ public class MyLevel extends Level{
 
         switch (type) {
         case ODDS_STRAIGHT:
-            //System.out.println("Built straight");
             return buildStraight(x, maxLength, false);
         case ODDS_HILL_STRAIGHT:
-            //System.out.println("Built hill");
             return buildHillStraight(x, maxLength);
         case ODDS_TUBES:
-            //System.out.println("Built tubes");
             return buildTubes(x, maxLength);
         case ODDS_JUMP:
-            //System.out.println("Built jump");
             return buildJump(x, maxLength);
         case ODDS_CANNONS:
-            //System.out.println("Built cannons");
             return buildCannons(x, maxLength);
         }
         return 0;
@@ -204,7 +196,47 @@ public class MyLevel extends Level{
 
 
 	private int generateHunterChunk(int chunkloc, int floorheight) {
-		// TODO Auto-generated method stub
+		odds[ODDS_STRAIGHT] = 30;
+        odds[ODDS_HILL_STRAIGHT] = 20;
+        odds[ODDS_TUBES] = 20;
+        odds[ODDS_JUMP] = 5;
+        if(difficulty > 1){
+            odds[ODDS_JUMP] += 5;
+        }
+        odds[ODDS_CANNONS] = 10 + 10*difficulty;
+
+        for (int i = 0; i < odds.length; i++) {
+            //failsafe (no negative odds)
+            if (odds[i] < 0) {
+                odds[i] = 0;
+            }
+
+            totalOdds += odds[i];
+            odds[i] = totalOdds - odds[i];
+        }
+
+
+        int length = chunkloc;
+
+        //create the chunk, zone by zone
+         while (length < chunkloc + CHUNK_SIZE) {
+            length += buildZone(length, chunkloc + CHUNK_SIZE - length);
+        }
+
+        
+        addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 1);
+        
+        int floor = height - 1 - rng.nextInt(4);
+
+        for (int x = length; x < chunkloc + CHUNK_SIZE; x++) {
+            for (int y = 0; y < height; y++) {
+                if (y >= floor) {
+                    setBlock(x, y, Level.GROUND);
+                }
+            }
+        }
+
+        //should definitely do something with this
 		return floorheight;
 	}
 
@@ -461,7 +493,7 @@ public class MyLevel extends Level{
         boolean keepGoing = true;
 
         boolean[] occupied = new boolean[length];
-        while (keepGoing)
+        while (keepGoing )
         {
             h = h - 2 - rng.nextInt(3);
 
@@ -472,6 +504,9 @@ public class MyLevel extends Level{
             else
             {
                 int l = rng.nextInt(5) + 3;
+                if((length - l - 1) <= 0){
+                    return 0;
+                }
                 int xxo = rng.nextInt(length - l - 2) + xo + 1;
 
                 if (occupied[xxo - xo] || occupied[xxo - xo + l] || occupied[xxo - xo - 1] || occupied[xxo - xo + l + 1])
