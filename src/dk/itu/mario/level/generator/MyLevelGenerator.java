@@ -137,6 +137,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 				if (levels.get(randIndex) == null) {
 					System.out.println("WHOOPSY");
 				}
+//				System.out.println("gonna generate a child here");
 				newGeneration.add(levels.get(i).generateChild(levels.get(randIndex)));
 			}
 			newGeneration.add(levels.get(i)); //add originals to new gen
