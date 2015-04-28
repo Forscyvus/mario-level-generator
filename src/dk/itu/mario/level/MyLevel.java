@@ -466,47 +466,31 @@ setBlock(chunkloc,0,ROCK);
         for(Platform plat : plats){
             int next = rng.nextInt(8);//chance is out of 4/8
             if(next == 0 && plat.y + 2 < getHeight()){//move down
-                if(map[plat.x][plat.y+1] == 0){
+                if(map[plat.x][plat.y+1] == 0 && map[plat.x][plat.y+2] ==0){
                     for(int x = plat.x; x < plat.x + plat.length; x++){
-                        if(!isGround(getBlock(x, plat.y+1))){
-                            setBlock(x, plat.y+1, getBlock(x, plat.y));
-                            setBlock(x, plat.y, (byte)0);
-                        } else {
-                            x = plat.x + plat.length;
-                        }
+                        setBlock(x, plat.y+1, getBlock(x, plat.y));
+                        setBlock(x, plat.y, (byte)0);
                     }
                 }
             } else if(next == 1 && plat.y > 0){//move up
                 for(int x = plat.x; x < plat.x + plat.length; x++){
-                    if(!isGround(getBlock(x, plat.y-1))){
-                        setBlock(x, plat.y-1, getBlock(x, plat.y));
-                        setBlock(x, plat.y, (byte)0);
-                    } else {
-                       x = plat.x + plat.length;
-                    }
+                    setBlock(x, plat.y-1, getBlock(x, plat.y));
+                    setBlock(x, plat.y, (byte)0);
                 }
             } else if(next == 2){//move left
                 for(int x = plat.x; x < plat.x + plat.length; x++){
-                    if(!isGround(getBlock(x-1, plat.y))){
-                        setBlock(x-1, plat.y, getBlock(x, plat.y));
-                        setBlock(x, plat.y, (byte)0);
-                    } else {
-                        x = plat.x + plat.length;
-                    }
+                    setBlock(x-1, plat.y, getBlock(x, plat.y));
+                    setBlock(x, plat.y, (byte)0);
                 }
             } else if(next == 3){//move right
                 for(int x = plat.x + plat.length -1; x >= plat.x; x--){
-                    if(!isGround(getBlock(x+1, plat.y))){
-                        setBlock(x+1, plat.y, getBlock(x, plat.y));
-                        setBlock(x, plat.y, (byte)0);
-                    } else {
-                        x = plat.x + plat.length;
-                    }
+                    setBlock(x+1, plat.y, getBlock(x, plat.y));
+                    setBlock(x, plat.y, (byte)0);
                 }
             }
         }
         plats = findCoinLines(map);
-       for(Platform plat : plats){
+        for(Platform plat : plats){
             int next = rng.nextInt(8);//chance is out of 4/8
             if(next == 0 && plat.y + 1 < getHeight()){//move down
                 if(map[plat.x][plat.y+1] == 0){
@@ -514,8 +498,6 @@ setBlock(chunkloc,0,ROCK);
                         if(!isGround(getBlock(x, plat.y+1))){
                             setBlock(x, plat.y+1, getBlock(x, plat.y));
                             setBlock(x, plat.y, (byte)0);
-                        } else {
-                            x = plat.x + plat.length;
                         }
                     }
                 }
@@ -524,8 +506,6 @@ setBlock(chunkloc,0,ROCK);
                     if(!isGround(getBlock(x, plat.y-1))){
                         setBlock(x, plat.y-1, getBlock(x, plat.y));
                         setBlock(x, plat.y, (byte)0);
-                    } else {
-                       x = plat.x + plat.length;
                     }
                 }
             } else if(next == 2){//move left
@@ -533,8 +513,6 @@ setBlock(chunkloc,0,ROCK);
                     if(!isGround(getBlock(x-1, plat.y))){
                         setBlock(x-1, plat.y, getBlock(x, plat.y));
                         setBlock(x, plat.y, (byte)0);
-                    } else {
-                        x = plat.x + plat.length;
                     }
                 }
             } else if(next == 3){//move right
@@ -542,8 +520,6 @@ setBlock(chunkloc,0,ROCK);
                     if(!isGround(getBlock(x+1, plat.y))){
                         setBlock(x+1, plat.y, getBlock(x, plat.y));
                         setBlock(x, plat.y, (byte)0);
-                    } else {
-                        x = plat.x + plat.length;
                     }
                 }
             }
