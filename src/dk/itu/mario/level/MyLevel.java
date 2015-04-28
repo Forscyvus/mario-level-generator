@@ -84,6 +84,7 @@ public class MyLevel extends Level{
     	//create exit
     	xExit = getWidth() - LEVEL_MARGIN_SIZE;
         yExit = 14;
+        this.difficulty = difficulty;
         
     	initializeFloor();
     	int floorheight = getHeight()-1; //for stitching purposes
@@ -126,7 +127,7 @@ setBlock(chunkloc,0,ROCK);
         odds[ODDS_STRAIGHT] = 10;
         odds[ODDS_HILL_STRAIGHT] = 40;
         odds[ODDS_TUBES] = 20;
-        odds[ODDS_JUMP] = 5;
+        odds[ODDS_JUMP] = 10;
         if(difficulty > 1){
             odds[ODDS_JUMP] += 10;
         }
@@ -239,7 +240,7 @@ setBlock(chunkloc,0,ROCK);
         odds[ODDS_TUBES] = 20;
         odds[ODDS_JUMP] = 5;
         if(difficulty > 1){
-            odds[ODDS_JUMP] += 5;
+            odds[ODDS_JUMP] += 10;
         }
         odds[ODDS_CANNONS] = 10 + 10*difficulty;
 
@@ -566,6 +567,36 @@ setBlock(chunkloc,0,ROCK);
         }
         
         return plats;
+    }
+
+    public ArrayList<Platform> findHillTops(byte[][] chunk) {
+        ArrayList<Platform> plats = new ArrayList<>();
+        
+        for (int y = 0; y < chunk[0].length; y++) {
+            for (int x = 0; x < chunk.length; x++) {
+                if (isHillTop(chunk[x][y])){
+                    boolean solid = chunk[x][y] == (byte) (14) || chunk[x][y] == (byte)(11)  || chunk[x][y] == (byte) (10+0*16);
+                    int length = 1;
+                    int startx = x;
+                    x++;
+                    while (x < chunk.length && isHillTop(chunk[x][y])) {
+                        length++;
+                        x++;
+                    }
+                    plats.add(new Platform(startx, y, length, solid));
+                }
+            }
+        }
+        
+        return plats;
+    }
+
+    public boolean isHillTop(byte b) {
+        int ib = b;
+        if(ib < 0) ib += 256;
+        int r = ib / 16;
+        int c = ib % 16;
+        return (c > 3 && c < 7 && (r == 8 || r == 11));
     }
 
     public class Platform {
@@ -1151,30 +1182,4 @@ setBlock(chunkloc,0,ROCK);
             }
         }
     }
-    
-    // public RandomLevel clone() throws CloneNotSupportedException {
-
-    // 	RandomLevel clone=new RandomLevel(width, height);
-
-    // 	clone.xExit = xExit;
-    // 	clone.yExit = yExit;
-    // 	byte[][] map = getMap();
-    // 	SpriteTemplate[][] st = getSpriteTemplate();
-    	
-    // 	for (int i = 0; i < map.length; i++)
-    // 		for (int j = 0; j < map[i].length; j++) {
-    // 			clone.setBlock(i, j, map[i][j]);
-    // 			clone.setSpriteTemplate(i, j, st[i][j]);
-    // 	}
-    // 	clone.BLOCKS_COINS = BLOCKS_COINS;
-    // 	clone.BLOCKS_EMPTY = BLOCKS_EMPTY;
-    // 	clone.BLOCKS_POWER = BLOCKS_POWER;
-    // 	clone.ENEMIES = ENEMIES;
-    // 	clone.COINS = COINS;
-    	
-    //     return clone;
-
-    //   }
-
-
 }
