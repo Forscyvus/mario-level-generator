@@ -74,9 +74,10 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		ArrayList<MyLevel> generation = getSuccessors(population);
 
 		int g = 0;
-		int score = 0;
+		ArrayList<Integer> scores = new ArrayList<>();
+		
 //		for (int g = 0; g < 10; g++) { //change to while below level target thresh?
-		while (score < 7000 && g < 100) {
+		while (!flattenedOut(scores) && g < 200) {
 			System.out.print("GENERATION ");
 			System.out.println(g);
 			population = new ArrayList<>();
@@ -101,7 +102,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 			generation = getSuccessors(population);
 			System.out.print("BEST SCORE FOR GENERATION: ");
 			System.out.println(sortedChildScores.get(0));
-			score = sortedChildScores.get(0);
+			scores.add(sortedChildScores.get(0));
 			g++;
 						
 		}
@@ -110,6 +111,16 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 
 
 
+	}
+
+	private boolean flattenedOut(ArrayList<Integer> scores) {
+		if (scores.size() < 30) {
+			return false;
+		}
+		if (scores.get(scores.size()-1) - scores.get(scores.size()-25) > 100) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
