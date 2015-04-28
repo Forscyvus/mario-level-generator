@@ -191,8 +191,8 @@ public class MyLevel extends Level{
     }
 
 	private int generateHoarderChunk(int chunkloc, int floorheight) {
-		odds[ODDS_STRAIGHT] = 30;
-        odds[ODDS_HILL_STRAIGHT] = 30;
+		odds[ODDS_STRAIGHT] = 40;
+        odds[ODDS_HILL_STRAIGHT] = 40;
         odds[ODDS_TUBES] = 10;
         odds[ODDS_JUMP] = 5;
         if(difficulty > 1){
@@ -277,7 +277,6 @@ public class MyLevel extends Level{
             }
         }
 
-        //should definitely do something with this
 		return floorheight;
 	}
 
@@ -538,7 +537,7 @@ public class MyLevel extends Level{
         if(ib < 0) ib += 256;
         int r = ib / 16;
         int c = ib % 16;
-        return (r > 7 && r < 12 && c >=0 && c < 8);
+        return (r > 7 && r < 12 && c >=0 && c < 8) || (r >= 0 && r < 2 && c > 9 && c < 12);
     }
 
     public ArrayList<Platform> findBlockRows(byte[][] chunk) {
