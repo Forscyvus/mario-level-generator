@@ -8,6 +8,7 @@ import dk.itu.mario.MarioInterface.GamePlay;
 import dk.itu.mario.MarioInterface.LevelGenerator;
 import dk.itu.mario.MarioInterface.LevelInterface;
 import dk.itu.mario.level.CustomizedLevel;
+import dk.itu.mario.level.Level;
 import dk.itu.mario.level.MyLevel;
 
 
@@ -51,6 +52,9 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 			initialPop.add(new MyLevel(340,15,rng.nextLong(),playerScores,difficulty,LevelInterface.TYPE_OVERGROUND,playerMetrics)); //static method will determine difficulty/etc from metrics
 		}
 
+		
+		System.out.println(evaluateLevel(initialPop.get(0), playerMetrics, playerScores, difficulty));
+		
 		return initialPop.get(0);
 		
 		//ArrayList<MyLevel> generation = getSuccessors(initialPop);
@@ -75,20 +79,117 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 				int randIndex = rng.nextInt()%levels.size();
 				newGeneration.add(levels.get(i).generateChild(levels.get(randIndex)));
 			}
-			newGeneration.add(levels.get(i));
+			newGeneration.add(levels.get(i)); //add originals to new gen
 		}
 		return newGeneration;
 	}
 
 
-	public int evaluateLevel(LevelInterface level, GamePlay player, int difficulty) {
+	public int evaluateLevel(MyLevel level, GamePlay player, int[] playerScores, int difficulty) {
+		int score = 0;
+		
+		
+		for (int chunkStart = MyLevel.LEVEL_MARGIN_SIZE; 
+				chunkStart < level.numChunks*MyLevel.CHUNK_SIZE + MyLevel.LEVEL_MARGIN_SIZE;
+				chunkStart+=MyLevel.CHUNK_SIZE) {
+			score += evaluateChunk(level, chunkStart, playerScores, difficulty, MyLevel.CHUNK_SIZE);
+		}
+			
+		
+		
+		return score;
+	}
+
+	public int evaluateChunk(MyLevel level, int chunkStartColumn, int[]playerScores, int difficulty, int chunkWidth) {
+		int score = 0;
+		MyLevel.Archetype type = level.chunkTypes[(chunkStartColumn - MyLevel.LEVEL_MARGIN_SIZE) / MyLevel.CHUNK_SIZE];
+		switch(type) {
+		case JUMPER:
+			score = evaluateJumperChunk(level, chunkStartColumn, playerScores, difficulty, chunkWidth);
+			break;
+		case HUNTER:
+			score = evaluateHunterChunk(level, chunkStartColumn, playerScores, difficulty, chunkWidth);
+			break;
+		case HOARDER:
+			score = evaluateHoarderChunk(level, chunkStartColumn, playerScores, difficulty, chunkWidth);
+			break;
+		}
+		
+		return score;
+	}	
+	
+	private int evaluateHoarderChunk(MyLevel level, int chunkStartColumn,
+			int[] playerScores, int difficulty, int chunkWidth) {
+				return 0;
+	}
+
+	private int evaluateHunterChunk(MyLevel level, int chunkStartColumn,
+			int[] playerScores, int difficulty, int chunkWidth) {
 		return 0;
 	}
 
-	public int evaluateChunk(LevelInterface level, int chunkStartColumn, int difficulty, int chunkWidth) {
-		return 0;
-	}	
+	private int evaluateJumperChunk(MyLevel level, int chunkStartColumn,
+			int[] playerScores, int difficulty, int chunkWidth) {
+		int score = 0;
+		byte[][] chunk = new byte[chunkWidth][level.getHeight()];
+		for (int x = 0; x< chunkWidth; x++){
+			for (int y = 0; y < level.getHeight(); y++){
+				chunk[x][y] = level.getBlock(x+chunkStartColumn, y);
+			}
+		}
+		ArrayList<Platform> plats = findPlatforms(chunk);
+		
+		System.out.println(plats.size());
+		
+		
+		
+		
+				
+		return score;
+	}
 	
+	private ArrayList<Platform> findPlatforms(byte[][] chunk) {
+		ArrayList<Platform> plats = new ArrayList<>();
+		
+		for (int y = 0; y < chunk[0].length; y++) {
+			for (int x = 0; x < chunk.length; x++) {
+				if (isSurface(chunk[x][y])){
+					boolean solid = chunk[x][y] == (byte) (14) || chunk[x][y] == (byte)(11)  || chunk[x][y] == (byte) (10+0*16);
+					int length = 1;
+					int startx = x;
+					x++;
+					while (x < chunk.length && isSurface(chunk[x][y])) {
+						length++;
+						x++;
+					}
+					plats.add(new Platform(startx, y, length, solid));
+				}
+			}
+		}
+		
+		return plats;
+	}
+
+	private boolean isSurface(byte b) {
+		
+		return b == (byte) (14) || b == (byte)(11)  || b == (byte) (10+0*16) || b == (byte) (5 + 8 * 16) || b == (byte) (4 + 8 * 16) || b == (byte) (6 + 8 * 16) || b == (byte) (4 + 11 * 16) || b == (byte) (6 + 11 * 16) || b == (byte) (0 + 1 * 16) || b == (byte) (4 + 2 + 1 * 16) || b == (byte) (4+1+1*16);
+		//           CANNON           TUBETOPRIGHT             TUBETOPLEFT            HILLTOP                 HILLTOPLEFT                HILLTOPRIGHT              HILLLTOPLEFTIN             HILLTOPIN                        BLOCKEMPTY                       BLOCKPOWER                BLOCKCOIN
+	}
+
+	private class Platform {
+		int x;
+		int y;
+		int length;
+		boolean solid;
+		
+		public Platform(int x, int y, int length, boolean solid) {
+			this.x=x;
+			this.y=y;
+			this.length=length;
+			this.solid=solid;
+		}
+	}
+
 	public int[] getPlayerScores(GamePlay player){
 		int kills = player.RedTurtlesKilled //number of Red Turtle Mario killed
 				+ player.GreenTurtlesKilled//number of Green Turtle Mario killed

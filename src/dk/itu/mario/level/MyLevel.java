@@ -39,8 +39,8 @@ public class MyLevel extends Level{
     public static long lastSeed;
 
     Random rng;
-    private final int CHUNK_SIZE = 40;
-    private final int LEVEL_MARGIN_SIZE = 10;
+    public static final int CHUNK_SIZE = 40;
+    public static final int LEVEL_MARGIN_SIZE = 10;
 
 
     private int difficulty;
@@ -50,8 +50,8 @@ public class MyLevel extends Level{
 	private GamePlay player;
 	private int[] playerScores;
 
-	private Archetype[] chunkTypes;
-	private int numChunks;
+	public Archetype[] chunkTypes;
+	public int numChunks;
 	
 	public enum Archetype {
 		HUNTER, HOARDER, JUMPER
