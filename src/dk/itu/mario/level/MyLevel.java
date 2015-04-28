@@ -1,6 +1,7 @@
 package dk.itu.mario.level;
 
 import java.util.Random;
+import java.util.ArrayList;
 
 import dk.itu.mario.MarioInterface.Constraints;
 import dk.itu.mario.MarioInterface.GamePlay;
@@ -83,6 +84,7 @@ public class MyLevel extends Level{
     	//create exit
     	xExit = getWidth() - LEVEL_MARGIN_SIZE;
         yExit = 14;
+        this.difficulty = difficulty;
         
     	initializeFloor();
     	int floorheight = getHeight()-1; //for stitching purposes
@@ -98,10 +100,9 @@ public class MyLevel extends Level{
     		} else {
     			chunkTypes[i] = Archetype.HUNTER;
     		}
-            //chunkTypes[i] = Archetype.JUMPER;
     		floorheight = generateChunk(i, floorheight);
     	}
-        System.out.println("Coins: " + COINS + ", Total Gap Width: " + TOTAL_GAP_SIZE + ", Enemies: " + ENEMIES);
+        //System.out.println("Coins: " + COINS + ", Total Gap Width: " + TOTAL_GAP_SIZE + ", Enemies: " + ENEMIES);
         fixWalls();
     }
     
@@ -118,8 +119,7 @@ public class MyLevel extends Level{
     		floorheight = generateHunterChunk(chunkloc, floorheight);
     		break;
     	}
-    	
-    	setBlock(chunkloc, 0, ROCK); //blockmarker
+setBlock(chunkloc,0,ROCK);
     	return floorheight;
     }
 
@@ -127,7 +127,7 @@ public class MyLevel extends Level{
         odds[ODDS_STRAIGHT] = 10;
         odds[ODDS_HILL_STRAIGHT] = 40;
         odds[ODDS_TUBES] = 20;
-        odds[ODDS_JUMP] = 5;
+        odds[ODDS_JUMP] = 10;
         if(difficulty > 1){
             odds[ODDS_JUMP] += 10;
         }
@@ -161,8 +161,6 @@ public class MyLevel extends Level{
             }
         }
 
-        
-        
         //should definitely do something with this
 		return floorheight;
 	}
@@ -181,7 +179,7 @@ public class MyLevel extends Level{
         case ODDS_STRAIGHT:
             return buildStraight(x, maxLength, false, chunkType);
         case ODDS_HILL_STRAIGHT:
-            if(maxLength > 10) break;
+            if(maxLength < 5) return 0;
             return buildHillStraight(x, maxLength, chunkType);
         case ODDS_TUBES:
             return buildTubes(x, maxLength);
@@ -242,7 +240,7 @@ public class MyLevel extends Level{
         odds[ODDS_TUBES] = 20;
         odds[ODDS_JUMP] = 5;
         if(difficulty > 1){
-            odds[ODDS_JUMP] += 5;
+            odds[ODDS_JUMP] += 10;
         }
         odds[ODDS_CANNONS] = 10 + 10*difficulty;
 
@@ -264,9 +262,9 @@ public class MyLevel extends Level{
             length += buildZone(length, chunkloc + CHUNK_SIZE - length, Archetype.HUNTER);
         }
         
-        addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 4, Archetype.HUNTER);
+        addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 2, Archetype.HUNTER);
         if(difficulty == 3){
-            addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 4, Archetype.HUNTER);
+            addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 2, Archetype.HUNTER);
         }
 
         int floor = height - 1 - rng.nextInt(4);
@@ -305,30 +303,315 @@ public class MyLevel extends Level{
     		return null;
     	}
     	for(int chunkStart = LEVEL_MARGIN_SIZE; chunkStart < getWidth() - LEVEL_MARGIN_SIZE - CHUNK_SIZE; chunkStart += CHUNK_SIZE){
+            int chunk = (chunkStart - LEVEL_MARGIN_SIZE)/CHUNK_SIZE;
+            
+            Archetype playerChoice;
+            //randomly choose player's "preferred" chunk type
+            int playerScoreTotal = playerScores[0] + playerScores[1] + playerScores[2];
+            int rando = rng.nextInt(playerScoreTotal);
+            if (rando < playerScores[0]){
+                playerChoice = Archetype.JUMPER;
+            } else if (rando - playerScores[0] < playerScores[1]) {
+                playerChoice = Archetype.HOARDER;
+            } else {
+                playerChoice = Archetype.HUNTER;
+            }
+
+            int threshold = 1;
+            int totalChance = 2;//start wih 50-50 chance to pick either
+
+            if(playerChoice == this.chunkTypes[chunk]){
+                totalChance += 2;
+                threshold += 2;
+            }
+            if(playerChoice == otherLevel.chunkTypes[chunk]){
+                totalChance += 2;
+            }
+            //if either chunk type is individually the best fit, 3/4 chance to choose it
+            //if both or neither match, 50-50
+            boolean check = (rng.nextInt(totalChance) >= threshold);
     		
-    		int check = rng.nextInt(2);  //50-50 chance to use otherLevel's chunk
-    		byte[][] map = otherLevel.getMap();
+            byte[][] map = otherLevel.getMap();
     		SpriteTemplate[][] st = otherLevel.getSpriteTemplate();
-    		if(check == 1){
-                int chunk = (chunkStart - LEVEL_MARGIN_SIZE)/CHUNK_SIZE;
+    		if(check){
     			child.chunkTypes[chunk] = otherLevel.chunkTypes[chunk];
-    			for(int i = chunkStart; i < chunkStart + CHUNK_SIZE - 4; i++){
+    			for(int i = chunkStart; i < chunkStart + CHUNK_SIZE; i++){
     				for(int j = 0; j < getHeight(); j++){
                         if(child.getBlock(i,j)==COIN){
                             COINS--;
                         }
-                        if(child.getBlock(i,j)==COIN){
-                            COINS--;
+                        if(child.getBlock(i,j)==BLOCK_POWERUP){
+                            BLOCKS_POWER--;
+                        }
+                        if(child.getBlock(i,j)==BLOCK_EMPTY){
+                            BLOCKS_EMPTY--;
+                        }
+                        if(child.getBlock(i,j)==BLOCK_COIN){
+                            BLOCKS_COINS--;
+                        }
+                        if(child.getSpriteTemplate(i,j) != null){
+                            ENEMIES--;
                         }
     					child.setBlock(i, j, map[i][j]);
 	    				child.setSpriteTemplate(i, j, st[i][j]);
+                        if(child.getBlock(i,j)==COIN){
+                            COINS++;
+                        }
+                        if(child.getBlock(i,j)==BLOCK_POWERUP){
+                            BLOCKS_POWER++;
+                        }
+                        if(child.getBlock(i,j)==BLOCK_EMPTY){
+                            BLOCKS_EMPTY++;
+                        }
+                        if(child.getBlock(i,j)==BLOCK_COIN){
+                            BLOCKS_COINS++;
+                        }
+                        if(child.getSpriteTemplate(i,j) != null){
+                            ENEMIES++;
+                        }
     				}
     			}
-    		}
+            }
+            //ensure smoothness with previous chunk
+            for(int y = 0; y < getHeight(); y++){
+                byte left = child.getBlock(chunkStart-1, y);
+                if(left < 0) left += 256;
+                byte right = child.getBlock(chunkStart, y);
+                if(right < 0) right += 256;
+                if(isDirt(left) != isDirt(right)){
+                    if(isDirt(left)){
+                        //grow grass on left's right side
+                        if(hasDirtRight(left)){
+                            int ileft = left;
+                            if(ileft < 0) ileft += 256;
+                            int r = ileft / 16;
+                            int c = ileft % 16;
+                            if(c == 1 || c == 5){
+                                c += 1;
+                                child.setBlock(chunkStart-1, y, (byte)(c + r*16));
+                            }
+                            if(c == 0 || c == 4){
+                                child.setBlock(chunkStart-1, y, (byte)0);
+                                if(child.getBlock(chunkStart-1, y+1)/16 == 9){
+                                    child.setBlock(chunkStart-1, y+1, (byte)(child.getBlock(chunkStart-1, y+1)-16));
+                                }
+                            }
+                            if((c == 3 || c == 7) && r == 9){
+                                child.setBlock(chunkStart-1, y, (byte)(c-1+r*16));
+                            }
+                        }
+                    } else {
+                        //grow grass on right's left side
+                        if(hasDirtLeft(right)){
+                            int iright = right;
+                            if(iright < 0) iright += 256;
+                            int r = iright / 16;
+                            int c = iright % 16;
+                            if(c == 1 || c == 5){
+                                c -= 1;
+                                child.setBlock(chunkStart, y, (byte)(c + r*16));
+                            }
+                            if(c == 2 || c == 6){
+                                child.setBlock(chunkStart, y, (byte)0);
+                                if(child.getBlock(chunkStart, y+1)/16 == 9){
+                                    child.setBlock(chunkStart, y+1, (byte)(child.getBlock(chunkStart, y+1)-16));
+                                }
+                            }
+                            if((c == 3 || c == 7) && r == 8){
+                                child.setBlock(chunkStart-1, y, (byte)(c-3+r*16));
+                            }
+                        }
+                    }
+                }
+                if(!hasDirtRight(left) && isDirt(left) && isDirt(right)){
+                    child.setBlock(chunkStart-1, y, (byte)(child.getBlock(chunkStart-1, y)-1));
+                }
+                if(!hasDirtLeft(right) && isDirt(right) && isDirt(left)){
+                    child.setBlock(chunkStart, y, (byte)(child.getBlock(chunkStart, y)+1));
+                }
+            }
     	}
+        child.permuteLevel();
     	return child;
     }
 
+    public boolean hasDirtLeft(byte block){
+        int iblock = block;
+        if(block < 0) iblock += 256;
+        int r = iblock / 16;
+        int c = iblock % 16;
+        return ((c > 0 && c < 8 && c != 4) && (r > 7 && r < 12));
+    }
+
+    public boolean hasDirtRight(byte block){
+        int iblock = block;
+        if(block < 0) iblock += 256;
+        int r = iblock / 16;
+        int c = iblock % 16;
+        return ((c >= 0 && c < 8 && c != 2 && c != 6) && (r > 7 && r < 12));
+    }
+
+    public boolean isDirt(byte block){
+        int iblock = block;
+        if(block < 0) iblock += 256;
+        int r = iblock / 16;
+        int c = iblock % 16;
+        return ((c >= 0 && c < 8) && (r > 7 && r < 12));
+    }
+
+    public void permuteLevel(){
+        byte[][] map = this.getMap();
+        ArrayList<Platform> plats = findBlockRows(map);
+        for(Platform plat : plats){
+            int next = rng.nextInt(8);//chance is out of 4/8
+            if(next == 0){//move down
+                if(map[plat.x][plat.y-1] ==0 && map[plat.x][plat.y-2] ==0){
+                    for(int x = plat.x; x < plat.x + plat.length; x++){
+                        setBlock(x, plat.y-1, getBlock(x, plat.y));
+                        setBlock(x, plat.y, (byte)0);
+                    }
+                }
+            } else if(next == 1){//move up
+                for(int x = plat.x; x < plat.x + plat.length; x++){
+                    setBlock(x, plat.y+1, getBlock(x, plat.y));
+                    setBlock(x, plat.y, (byte)0);
+                }
+            } else if(next == 2){//move left
+                for(int x = plat.x; x < plat.x + plat.length; x++){
+                    setBlock(x-1, plat.y, getBlock(x, plat.y));
+                    setBlock(x, plat.y, (byte)0);
+                }
+            } else if(next == 3){//move right
+                for(int x = plat.x + plat.length -1; x >= plat.x; x--){
+                    setBlock(x+1, plat.y, getBlock(x, plat.y));
+                    setBlock(x, plat.y, (byte)0);
+                }
+            }
+        }
+        plats = findCoinLines(map);
+        for(Platform plat : plats){
+            int next = rng.nextInt(8);//chance is out of 4/8
+            if(next == 0){//move down
+                if(map[plat.x][plat.y-1] ==0){
+                    for(int x = plat.x; x < plat.x + plat.length; x++){
+                        setBlock(x, plat.y-1, getBlock(x, plat.y));
+                        setBlock(x, plat.y, (byte)0);
+                    }
+                }
+            } else if(next == 1){//move up
+                for(int x = plat.x; x < plat.x + plat.length; x++){
+                    setBlock(x, plat.y+1, getBlock(x, plat.y));
+                    setBlock(x, plat.y, (byte)0);
+                }
+            } else if(next == 2){//move left
+                for(int x = plat.x; x < plat.x + plat.length; x++){
+                    setBlock(x-1, plat.y, getBlock(x, plat.y));
+                    setBlock(x, plat.y, (byte)0);
+                }
+            } else if(next == 3){//move right
+                for(int x = plat.x + plat.length -1; x >= plat.x; x--){
+                    setBlock(x+1, plat.y, getBlock(x, plat.y));
+                    setBlock(x, plat.y, (byte)0);
+                }
+            }
+        }
+    }
+
+    public ArrayList<Platform> findBlockRows(byte[][] chunk) {
+        ArrayList<Platform> plats = new ArrayList<>();
+        
+        for (int y = 0; y < chunk[0].length; y++) {
+            for (int x = 0; x < chunk.length; x++) {
+                if (isBlock(chunk[x][y])){
+                    boolean solid = chunk[x][y] == (byte) (14) || chunk[x][y] == (byte)(11)  || chunk[x][y] == (byte) (10+0*16);
+                    int length = 1;
+                    int startx = x;
+                    x++;
+                    while (x < chunk.length && isBlock(chunk[x][y])) {
+                        length++;
+                        x++;
+                    }
+                    plats.add(new Platform(startx, y, length, solid));
+                }
+            }
+        }
+        
+        return plats;
+    }
+
+    public boolean isBlock(byte b) {
+        int ib = b;
+        if(ib < 0) ib += 256;
+        int r = ib / 16;
+        int c = ib % 16;
+        return (r == 0 && c > 3 && c < 8) || (r == 1 && c >= 0 && c <8);
+    }
+
+    public ArrayList<Platform> findCoinLines(byte[][] chunk) {
+        ArrayList<Platform> plats = new ArrayList<>();
+        
+        for (int y = 0; y < chunk[0].length; y++) {
+            for (int x = 0; x < chunk.length; x++) {
+                if (chunk[x][y] == COIN){
+                    boolean solid = chunk[x][y] == (byte) (14) || chunk[x][y] == (byte)(11)  || chunk[x][y] == (byte) (10+0*16);
+                    int length = 1;
+                    int startx = x;
+                    x++;
+                    while (x < chunk.length && chunk[x][y] == COIN) {
+                        length++;
+                        x++;
+                    }
+                    plats.add(new Platform(startx, y, length, solid));
+                }
+            }
+        }
+        
+        return plats;
+    }
+
+    public ArrayList<Platform> findHillTops(byte[][] chunk) {
+        ArrayList<Platform> plats = new ArrayList<>();
+        
+        for (int y = 0; y < chunk[0].length; y++) {
+            for (int x = 0; x < chunk.length; x++) {
+                if (isHillTop(chunk[x][y])){
+                    boolean solid = chunk[x][y] == (byte) (14) || chunk[x][y] == (byte)(11)  || chunk[x][y] == (byte) (10+0*16);
+                    int length = 1;
+                    int startx = x;
+                    x++;
+                    while (x < chunk.length && isHillTop(chunk[x][y])) {
+                        length++;
+                        x++;
+                    }
+                    plats.add(new Platform(startx, y, length, solid));
+                }
+            }
+        }
+        
+        return plats;
+    }
+
+    public boolean isHillTop(byte b) {
+        int ib = b;
+        if(ib < 0) ib += 256;
+        int r = ib / 16;
+        int c = ib % 16;
+        return (c > 3 && c < 7 && (r == 8 || r == 11));
+    }
+
+    public class Platform {
+        int x;
+        int y;
+        int length;
+        boolean solid;
+        
+        public Platform(int x, int y, int length, boolean solid) {
+            this.x=x;
+            this.y=y;
+            this.length=length;
+            this.solid=solid;
+        }
+    }
 
 	public MyLevel clone() throws CloneNotSupportedException {
 
@@ -490,10 +773,13 @@ public class MyLevel extends Level{
             else
             {
                 int l = rng.nextInt(5) + 3;
-                if((length - l - 2) <= 0){
-                    return 0;
+                int xxo;
+                try {
+                    xxo = rng.nextInt(length - l - 2) + xo + 1;
                 }
-                int xxo = rng.nextInt(length - l - 2) + xo + 1;
+                catch(IllegalArgumentException e){
+                    break;
+                }
 
                 if (occupied[xxo - xo] || occupied[xxo - xo + l] || occupied[xxo - xo - 1] || occupied[xxo - xo + l + 1])
                 {
@@ -896,30 +1182,4 @@ public class MyLevel extends Level{
             }
         }
     }
-    
-    // public RandomLevel clone() throws CloneNotSupportedException {
-
-    // 	RandomLevel clone=new RandomLevel(width, height);
-
-    // 	clone.xExit = xExit;
-    // 	clone.yExit = yExit;
-    // 	byte[][] map = getMap();
-    // 	SpriteTemplate[][] st = getSpriteTemplate();
-    	
-    // 	for (int i = 0; i < map.length; i++)
-    // 		for (int j = 0; j < map[i].length; j++) {
-    // 			clone.setBlock(i, j, map[i][j]);
-    // 			clone.setSpriteTemplate(i, j, st[i][j]);
-    // 	}
-    // 	clone.BLOCKS_COINS = BLOCKS_COINS;
-    // 	clone.BLOCKS_EMPTY = BLOCKS_EMPTY;
-    // 	clone.BLOCKS_POWER = BLOCKS_POWER;
-    // 	clone.ENEMIES = ENEMIES;
-    // 	clone.COINS = COINS;
-    	
-    //     return clone;
-
-    //   }
-
-
 }
