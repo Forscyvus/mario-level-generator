@@ -1,0 +1,7 @@
+ .../mario/level/MyLevel$Archetype.class  | Bin [31m1182[m -> [32m1182[m bytes
+ .../mario/level/MyLevel$ChunkType.class  | Bin [31m1102[m -> [32m0[m bytes
+ bin/dk/itu/mario/level/MyLevel.class     | Bin [31m5069[m -> [32m12736[m bytes
+ .../generator/MyLevelGenerator.class     | Bin [31m3984[m -> [32m6777[m bytes
+ src/dk/itu/mario/level/MyLevel.java      |   8 [32m+[m[31m-[m
+ .../generator/MyLevelGenerator.java      | 111 [32m+++++++++++++[m[31m-[m
+ 6 files changed, 110 insertions(+), 9 deletions(-)
