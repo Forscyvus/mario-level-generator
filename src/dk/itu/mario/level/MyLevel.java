@@ -530,6 +530,44 @@ public class MyLevel extends Level{
                 }
             }
         }
+        plats = findPlatforms(map);
+        for(Platform plat : plats){
+            if(rng.nextInt(4) == 0){
+                for(int x = plat.x + plat.length -1; x >= plat.x; x--){
+                    if(getBlock(x, plat.y+2) == 0){
+                        setBlock(x, plat.y+2, COIN);
+                    }
+                }
+            }
+        }
+    }
+
+    private ArrayList<Platform> findPlatforms(byte[][] chunk) {
+        ArrayList<Platform> plats = new ArrayList<>();
+        
+        for (int y = 0; y < chunk[0].length; y++) {
+            for (int x = 0; x < chunk.length; x++) {
+                if (isSurface(chunk[x][y])){
+                    boolean solid = chunk[x][y] == (byte) (14) || chunk[x][y] == (byte)(11)  || chunk[x][y] == (byte) (10+0*16);
+                    int length = 1;
+                    int startx = x;
+                    x++;
+                    while (x < chunk.length && isSurface(chunk[x][y])) {
+                        length++;
+                        x++;
+                    }
+                    plats.add(new Platform(startx, y, length, solid));
+                }
+            }
+        }
+        
+        return plats;
+    }
+
+    private boolean isSurface(byte b) {
+        
+        return b == (byte) (14) || b == (byte)(11)  || b == (byte) (10+0*16) || b == (byte) (5 + 8 * 16) || b == (byte) (4 + 8 * 16) || b == (byte) (6 + 8 * 16) || b == (byte) (4 + 11 * 16) || b == (byte) (6 + 11 * 16) || b == (byte) (0 + 1 * 16) || b == (byte) (4 + 2 + 1 * 16) || b == (byte) (4+1+1*16) || b == (byte)(3+1*16);
+        //           CANNON           TUBETOPRIGHT             TUBETOPLEFT            HILLTOP                 HILLTOPLEFT                HILLTOPRIGHT              HILLLTOPLEFTIN             HILLTOPIN                        BLOCKEMPTY                       BLOCKPOWER                BLOCKCOIN
     }
 
     public boolean isGround(byte b) {
