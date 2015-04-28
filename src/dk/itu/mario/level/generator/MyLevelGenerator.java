@@ -1,5 +1,6 @@
 package dk.itu.mario.level.generator;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 import java.util.ArrayList;
@@ -106,8 +107,9 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 			g++;
 						
 		}
+		MyLevel.Archetype[] chunkTypes = population.get(0).chunkTypes;
+		System.out.print(Arrays.toString(chunkTypes));
 		return population.get(0);
-		//DO THE GENETICS loop and evaluate
 
 
 
@@ -218,6 +220,14 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 				ArrayList<Platform> plats = findPlatforms(chunk);
 				ArrayList<CoinRow> coinRows = findCoinRows(chunk);
 				
+				int totalCoins = 0;
+				for (CoinRow cr : coinRows) {
+					totalCoins += cr.length;
+				}
+				
+				//score total coins
+				score += 500 - (10*(Math.abs(totalCoins - playerCoinsCollected)));
+				
 				int groundRows = 0;
 				int platformRows = 0;
 				for (CoinRow row : coinRows) {
@@ -236,7 +246,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 				int strandedRows = coinRows.size() - platformRows - groundRows;
 				score -= 100*strandedRows;
 				
-				score += (int) (300 - 15*(Math.abs(playerCoinsCollected - (100*(platformRows / (double)plats.size()))))); //match platforms with coins ratio to coin collection ratio
+				score += (int) (150 - 1*(Math.abs(playerCoinsCollected - (100*(platformRows / (double)plats.size()))))); //match platforms with coins ratio to coin collection ratio
 				
 				//score distribution of coins
 				double coinMeanX = 0;
@@ -257,8 +267,8 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 				coinDiffMeanX = Math.sqrt(coinDiffMeanX);
 				coinDiffMeanY /= (double) coinRows.size();
 				coinDiffMeanY = Math.sqrt(coinDiffMeanY);
-				int coinYstdevScore = (int) (150 - 35*(Math.abs(4-coinDiffMeanY))); //MAGIC NUMBERS
-				int coinXstdevScore = (int) (150 - 25*(Math.abs(10-coinDiffMeanX)));
+				int coinYstdevScore = (int) (100 - 35*(Math.abs(4-coinDiffMeanY))); //MAGIC NUMBERS
+				int coinXstdevScore = (int) (100 - 25*(Math.abs(10-coinDiffMeanX)));
 				score += coinYstdevScore + coinXstdevScore;
 				
 				
