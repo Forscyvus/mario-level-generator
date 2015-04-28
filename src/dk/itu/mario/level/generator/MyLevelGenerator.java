@@ -129,7 +129,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 	}
 
 	private int evaluateJumperChunk(MyLevel level, int chunkStartColumn,
-			int[] playerScores, int difficulty, int chunkWidth) {
+		int[] playerScores, int difficulty, int chunkWidth) {
 		int score = 0;
 		byte[][] chunk = new byte[chunkWidth][level.getHeight()];
 		for (int x = 0; x< chunkWidth; x++){
@@ -138,8 +138,55 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 			}
 		}
 		ArrayList<Platform> plats = findPlatforms(chunk);
+		ArrayList<Wall> walls = findWalls(chunk);
 		
-		System.out.println(plats.size());
+		
+	
+		//score distribution of platforms and walls
+		double platMeanX = 0;
+		double platMeanY = 0;
+		double wallMeanX = 0;
+		for (Platform p : plats) {
+			platMeanX += p.x;
+			platMeanY += p.y;
+		}
+		platMeanX /= (double) plats.size();
+		platMeanY /= (double) plats.size();
+		for (Wall w: walls) {
+			wallMeanX += w.x;
+		}
+		wallMeanX /= (double) walls.size();
+		double platDiffMeanX = 0;
+		double platDiffMeanY = 0;
+		double wallDiffMeanX = 0;
+		for (Platform p : plats) {
+			platDiffMeanX += Math.pow(platMeanX - p.x,2);
+			platDiffMeanY += Math.pow(platMeanY - p.y,2);
+		}
+		platDiffMeanX /= (double) plats.size();
+		platDiffMeanX = Math.sqrt(platDiffMeanX);
+		platDiffMeanY /= (double) plats.size();
+		platDiffMeanY = Math.sqrt(platDiffMeanY);
+		for (Wall w: walls) {
+			wallDiffMeanX += Math.pow(w.x - wallMeanX, 2);
+		}
+		wallDiffMeanX /= (double) walls.size();
+		wallDiffMeanX = Math.sqrt(wallDiffMeanX);
+		
+		int platMeanYScore = (int) (100 - 40*(Math.abs(9-platMeanY)));
+		int platYstdevScore = (int) (100 - 20*(Math.abs(4-platDiffMeanY))); //MAGIC NUMBERS
+		int platXstdevScore = (int) (100 - 10*(Math.abs(10-platDiffMeanX)));
+		int wallXstdevScore = (int) (100 - 10*(Math.abs(10-wallDiffMeanX)));
+		
+		score += platMeanYScore + platYstdevScore + platXstdevScore + wallXstdevScore;
+		//end scoring distribution of platforms and walls
+		
+		
+		
+		
+		
+		
+		
 		
 		
 		
@@ -148,6 +195,27 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		return score;
 	}
 	
+	private ArrayList<Wall> findWalls(byte[][] chunk) {
+		ArrayList<Wall> walls = new ArrayList<>();
+		
+		for (int x = 0; x < chunk.length; x++) {
+			for (int y = 0; y < chunk[0].length; y++) {
+				if (isWall(chunk[x][y])) {
+					int length = 1;
+					int starty = y;
+					y++;
+					while (y < chunk[x].length && isWall(chunk[x][y])) {
+						length++;
+						y++;
+					}
+					walls.add(new Wall(x, starty, length, true));
+				}
+			}
+		}
+		
+		return walls;
+	}
+
 	private ArrayList<Platform> findPlatforms(byte[][] chunk) {
 		ArrayList<Platform> plats = new ArrayList<>();
 		
@@ -169,6 +237,11 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		
 		return plats;
 	}
+	
+	private boolean isWall(byte b) {
+		return  b == (byte) (10+0*16)  || b == (byte) (10 + 1 * 16) || b == (byte)(14+1*16) || b == (byte)(14+2*16) || b == (byte) (14) || b==(byte)(0+9*16) || b == (byte)(0+8*16) ;
+		//          TUBETOPLEFT                     TUBESIDELEFT                 cannon neck          cannon foot              cannon head     left grass           left grass corner  
+	}
 
 	private boolean isSurface(byte b) {
 		
@@ -183,6 +256,19 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		boolean solid;
 		
 		public Platform(int x, int y, int length, boolean solid) {
+			this.x=x;
+			this.y=y;
+			this.length=length;
+			this.solid=solid;
+		}
+	}
+	private class Wall {
+		int x;
+		int y;
+		int length;
+		boolean solid;
+		
+		public Wall(int x, int y, int length, boolean solid) {
 			this.x=x;
 			this.y=y;
 			this.length=length;
