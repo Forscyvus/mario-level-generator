@@ -178,6 +178,17 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		}
 		int idealNumCannons = difficulty * 8;
 		score += (int) (level.numChunks * (100 - 20*(Math.abs(idealNumCannons - numCannons))));
+		//tune total coins to coin score
+		int idealNumCoins = playerScores[1] * level.numChunks;
+		int numCoins = 0;
+		for (int x = 0; x < level.getWidth(); x++){
+			for (int y = 0; y < level.getHeight(); y++) {
+				if (level.getBlock(x, y) == (byte) (2 + 2 * 16)){
+					numCoins++;
+				}
+			}
+		}
+		score += (int) (level.numChunks * (200 - 2*(Math.abs(idealNumCoins - numCoins))));
 		
 		
 		return score;
