@@ -464,16 +464,16 @@ setBlock(chunkloc,0,ROCK);
         ArrayList<Platform> plats = findBlockRows(map);
         for(Platform plat : plats){
             int next = rng.nextInt(8);//chance is out of 4/8
-            if(next == 0){//move down
-                if(map[plat.x][plat.y-1] ==0 && map[plat.x][plat.y-2] ==0){
+            if(next == 0 && plat.y + 2 < getHeight()){//move down
+                if(map[plat.x][plat.y+1] == 0 && map[plat.x][plat.y+2] ==0){
                     for(int x = plat.x; x < plat.x + plat.length; x++){
-                        setBlock(x, plat.y-1, getBlock(x, plat.y));
+                        setBlock(x, plat.y+1, getBlock(x, plat.y));
                         setBlock(x, plat.y, (byte)0);
                     }
                 }
-            } else if(next == 1){//move up
+            } else if(next == 1 && plat.y > 0){//move up
                 for(int x = plat.x; x < plat.x + plat.length; x++){
-                    setBlock(x, plat.y+1, getBlock(x, plat.y));
+                    setBlock(x, plat.y-1, getBlock(x, plat.y));
                     setBlock(x, plat.y, (byte)0);
                 }
             } else if(next == 2){//move left
