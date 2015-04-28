@@ -26,8 +26,8 @@ import dk.itu.mario.level.MyLevel;
 
 public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelGenerator{
 
-	private final int INITIALPOPSIZE = 30;
-	private final int CHILDRENPERLEVEL = 10;
+	private final int INITIALPOPSIZE = 15;
+	private final int CHILDRENPERLEVEL = 5;
 	Random rng;
 
 	public MyLevelGenerator() {
@@ -76,7 +76,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		int g = 0;
 		int score = 0;
 //		for (int g = 0; g < 10; g++) { //change to while below level target thresh?
-		while (score < 4000) {
+		while (score < 7000 && g < 100) {
 			System.out.print("GENERATION ");
 			System.out.println(g);
 			population = new ArrayList<>();
@@ -123,6 +123,9 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		for (int i = 0; i < levels.size(); i++) {
 			for (int j = 0; j < CHILDRENPERLEVEL; j++) {
 				int randIndex = rng.nextInt(levels.size());
+				if (levels.get(randIndex) == null) {
+					System.out.println("WHOOPSY");
+				}
 				newGeneration.add(levels.get(i).generateChild(levels.get(randIndex)));
 			}
 			newGeneration.add(levels.get(i)); //add originals to new gen
