@@ -118,6 +118,7 @@ public class MyLevel extends Level{
     		break;
     	}
     	
+    	setBlock(chunkloc, 0, ROCK); //blockmarker
     	return floorheight;
     }
 
@@ -147,7 +148,7 @@ public class MyLevel extends Level{
         //create the chunk, zone by zone
          while (length < chunkloc + CHUNK_SIZE - 4) {
             length += buildZone(length, Math.min(CHUNK_SIZE - 4, getWidth() - length));
-            setBlock(length, 0, COIN);
+            
         }
 
         int floor = height - 1 - rng.nextInt(4);
@@ -160,6 +161,8 @@ public class MyLevel extends Level{
             }
         }
 
+        
+        
         //should definitely do something with this
 		return floorheight;
 	}

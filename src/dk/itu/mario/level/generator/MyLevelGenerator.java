@@ -172,7 +172,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 
 	private boolean isSurface(byte b) {
 		
-		return b == (byte) (14) || b == (byte)(11)  || b == (byte) (10+0*16) || b == (byte) (5 + 8 * 16) || b == (byte) (4 + 8 * 16) || b == (byte) (6 + 8 * 16) || b == (byte) (4 + 11 * 16) || b == (byte) (6 + 11 * 16) || b == (byte) (0 + 1 * 16) || b == (byte) (4 + 2 + 1 * 16) || b == (byte) (4+1+1*16);
+		return b == (byte) (14) || b == (byte)(11)  || b == (byte) (10+0*16) || b == (byte) (5 + 8 * 16) || b == (byte) (4 + 8 * 16) || b == (byte) (6 + 8 * 16) || b == (byte) (4 + 11 * 16) || b == (byte) (6 + 11 * 16) || b == (byte) (0 + 1 * 16) || b == (byte) (4 + 2 + 1 * 16) || b == (byte) (4+1+1*16) || b == (byte)(3+1*16);
 		//           CANNON           TUBETOPRIGHT             TUBETOPLEFT            HILLTOP                 HILLTOPLEFT                HILLTOPRIGHT              HILLLTOPLEFTIN             HILLTOPIN                        BLOCKEMPTY                       BLOCKPOWER                BLOCKCOIN
 	}
 
