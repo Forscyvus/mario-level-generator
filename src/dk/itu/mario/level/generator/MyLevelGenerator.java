@@ -179,7 +179,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		int idealNumCannons = difficulty * 8;
 		score += (int) (level.numChunks * (100 - 20*(Math.abs(idealNumCannons - numCannons))));
 		//tune total coins to coin score
-		int idealNumCoins = playerScores[1] * level.numChunks;
+		int idealNumCoins = (int)(playerScores[1] * level.numChunks * (playerScores[1]/(double)(playerScores[0]+playerScores[1]+playerScores[2])));
 		int numCoins = 0;
 		for (int x = 0; x < level.getWidth(); x++){
 			for (int y = 0; y < level.getHeight(); y++) {
@@ -237,7 +237,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 				}
 				
 				//score total coins
-				score += 500 - (10*(Math.abs(totalCoins - playerCoinsCollected)));
+				//score += 500 - (10*(Math.abs(totalCoins - playerCoinsCollected)));
 				
 				int groundRows = 0;
 				int platformRows = 0;
@@ -571,6 +571,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		
 		scores[0] = (int)(100*(player.jumpsNumber / (.7 * player.totalTime)));
 		scores[1] = (int)(100*(player.coinsCollected / (double)player.totalCoins));
+		if (scores[1] > 100) scores[1] = 100;
 		scores[2] = (int)(100*( kills / (double)player.totalEnemies));
 		
 //		System.out.println("Jumps, Time, jumps/time");
