@@ -495,7 +495,7 @@ setBlock(chunkloc,0,ROCK);
             if(next == 0 && plat.y + 1 < getHeight()){//move down
                 if(map[plat.x][plat.y+1] == 0){
                     for(int x = plat.x; x < plat.x + plat.length; x++){
-                        if(!isGround(getBlock(x, plat.y+1)){
+                        if(!isGround(getBlock(x, plat.y+1))){
                             setBlock(x, plat.y+1, getBlock(x, plat.y));
                             setBlock(x, plat.y, (byte)0);
                         }
@@ -503,21 +503,21 @@ setBlock(chunkloc,0,ROCK);
                 }
             } else if(next == 1 && plat.y > 0){//move up
                 for(int x = plat.x; x < plat.x + plat.length; x++){
-                    if(!isGround(getBlock(x, plat.y-1)){
+                    if(!isGround(getBlock(x, plat.y-1))){
                         setBlock(x, plat.y-1, getBlock(x, plat.y));
                         setBlock(x, plat.y, (byte)0);
                     }
                 }
             } else if(next == 2){//move left
                 for(int x = plat.x; x < plat.x + plat.length; x++){
-                    if(!isGround(getBlock(x-1, plat.y)){
+                    if(!isGround(getBlock(x-1, plat.y))){
                         setBlock(x-1, plat.y, getBlock(x, plat.y));
                         setBlock(x, plat.y, (byte)0);
                     }
                 }
             } else if(next == 3){//move right
                 for(int x = plat.x + plat.length -1; x >= plat.x; x--){
-                    if(!isGround(getBlock(x+1, plat.y)){
+                    if(!isGround(getBlock(x+1, plat.y))){
                         setBlock(x+1, plat.y, getBlock(x, plat.y));
                         setBlock(x, plat.y, (byte)0);
                     }
