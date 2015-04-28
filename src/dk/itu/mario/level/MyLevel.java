@@ -76,7 +76,7 @@ public class MyLevel extends Level{
     {
         this(width, height);
         player = playerMetrics;
-        this.playerScores = playerScores; 
+        this.playerScores = Arrays.copyOf(playerScores, 3); 
         creat(seed, difficulty, type); //generates initial level
     }
 
@@ -621,6 +621,7 @@ setBlock(chunkloc,0,ROCK);
 	    	clone.yExit = yExit;
 	    	byte[][] map = getMap();
 	    	SpriteTemplate[][] st = getSpriteTemplate();
+            clone.playerScores = Arrays.copyOf(playerScores, 3);
 
 	    	clone.numChunks = numChunks;
 	    	clone.chunkTypes = chunkTypes.clone();
