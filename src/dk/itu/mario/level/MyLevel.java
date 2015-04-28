@@ -823,6 +823,7 @@ public class MyLevel extends Level{
                         decorate(xxo - 1, xxo + l + 1, h, chunkType);
                         if(chunkType == Archetype.HOARDER){
                             decorate(xxo - 1, xxo + l + 1, h, chunkType);
+                            decorate(xxo - 1, xxo + l + 1, h, chunkType);
                         }
                         keepGoing = false;
                     }
@@ -966,6 +967,7 @@ public class MyLevel extends Level{
                 decorate(xo, xo + length, floor, chunkType);
                 if(chunkType == Archetype.HOARDER){
                     decorate(xo, xo + length, floor,chunkType);
+                    decorate(xo, xo + length, floor,chunkType);
                 }
             }
         }
@@ -996,6 +998,20 @@ public class MyLevel extends Level{
                 for(int x = xStart + 1 + s; x < xLength - 1 - e; x++){
                     setBlock(x, floor - 2, COIN);
                     COINS++;
+                }
+            }
+        }
+
+        if(chunkType == Archetype.HOARDER){
+            s = rng.nextInt(4);
+            e = rng.nextInt(4);
+
+            if (floor - 2 > 0){
+                if ((xLength - 1 - e) - (xStart + 1 + s) > 1){
+                    for(int x = xStart + 1 + s; x < xLength - 1 - e; x++){
+                        setBlock(x, floor - 2, COIN);
+                        COINS++;
+                    }
                 }
             }
         }
