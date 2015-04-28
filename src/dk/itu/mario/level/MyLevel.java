@@ -98,9 +98,10 @@ public class MyLevel extends Level{
     		} else {
     			chunkTypes[i] = Archetype.HUNTER;
     		}
-    		chunkTypes[i] = Archetype.JUMPER;
+    		chunkTypes[i] = Archetype.HUNTER;
     		floorheight = generateChunk(i, floorheight);
     	}
+        System.out.println("Coins: " + COINS + ", Total Gap Width: " + TOTAL_GAP_SIZE + ", Enemies: " + ENEMIES);
         fixWalls();
     }
     
@@ -146,8 +147,7 @@ public class MyLevel extends Level{
 
         //create the chunk, zone by zone
          while (length < chunkloc + CHUNK_SIZE - 4) {
-            length += buildZone(length, Math.min(CHUNK_SIZE - 4, getWidth() - length));
-            setBlock(length, 0, COIN);
+            length += buildZone(length, Math.min(CHUNK_SIZE - 4, getWidth() - length), Archetype.JUMPER);
         }
 
         int floor = height - 1 - rng.nextInt(4);
@@ -164,7 +164,7 @@ public class MyLevel extends Level{
 		return floorheight;
 	}
 
-    private int buildZone(int x, int maxLength) {
+    private int buildZone(int x, int maxLength, Archetype chunkType) {
         int t = rng.nextInt(totalOdds);
         int type = 0;
 
@@ -176,9 +176,10 @@ public class MyLevel extends Level{
 
         switch (type) {
         case ODDS_STRAIGHT:
-            return buildStraight(x, maxLength, false);
+            return buildStraight(x, maxLength, false, chunkType);
         case ODDS_HILL_STRAIGHT:
-            return buildHillStraight(x, maxLength);
+            if(maxLength > 10) break;
+            return buildHillStraight(x, maxLength, chunkType);
         case ODDS_TUBES:
             return buildTubes(x, maxLength);
         case ODDS_JUMP:
@@ -190,14 +191,51 @@ public class MyLevel extends Level{
     }
 
 	private int generateHoarderChunk(int chunkloc, int floorheight) {
-		// TODO Auto-generated method stub
-		return floorheight;
+		odds[ODDS_STRAIGHT] = 30;
+        odds[ODDS_HILL_STRAIGHT] = 30;
+        odds[ODDS_TUBES] = 10;
+        odds[ODDS_JUMP] = 5;
+        if(difficulty > 1){
+            odds[ODDS_JUMP] += 5;
+        }
+        odds[ODDS_CANNONS] = 5 + 5*difficulty;
+
+        for (int i = 0; i < odds.length; i++) {
+            //failsafe (no negative odds)
+            if (odds[i] < 0) {
+                odds[i] = 0;
+            }
+
+            totalOdds += odds[i];
+            odds[i] = totalOdds - odds[i];
+        }
+
+
+        int length = chunkloc;
+
+        //create the chunk, zone by zone
+         while (length < chunkloc + CHUNK_SIZE) {
+            length += buildZone(length, chunkloc + CHUNK_SIZE - length, Archetype.HOARDER);
+        }
+        
+        int floor = height - 1 - rng.nextInt(4);
+
+        for (int x = length; x < chunkloc + CHUNK_SIZE; x++) {
+            for (int y = 0; y < height; y++) {
+                if (y >= floor) {
+                    setBlock(x, y, Level.GROUND);
+                }
+            }
+        }
+
+        //should definitely do something with this
+        return floorheight;
 	}
 
 
 	private int generateHunterChunk(int chunkloc, int floorheight) {
-		odds[ODDS_STRAIGHT] = 30;
-        odds[ODDS_HILL_STRAIGHT] = 20;
+		odds[ODDS_STRAIGHT] = 20;
+        odds[ODDS_HILL_STRAIGHT] = 30;
         odds[ODDS_TUBES] = 20;
         odds[ODDS_JUMP] = 5;
         if(difficulty > 1){
@@ -220,11 +258,8 @@ public class MyLevel extends Level{
 
         //create the chunk, zone by zone
          while (length < chunkloc + CHUNK_SIZE) {
-            length += buildZone(length, chunkloc + CHUNK_SIZE - length);
+            length += buildZone(length, chunkloc + CHUNK_SIZE - length, Archetype.HUNTER);
         }
-
-        
-        addEnemyLine(chunkloc, chunkloc + CHUNK_SIZE, 1);
         
         int floor = height - 1 - rng.nextInt(4);
 
@@ -267,7 +302,8 @@ public class MyLevel extends Level{
     		byte[][] map = otherLevel.getMap();
     		SpriteTemplate[][] st = otherLevel.getSpriteTemplate();
     		if(check == 1){
-    			//change chunk type
+
+    			//child.chunkTypes[chunk] = otherLevel.chunkTypes[chunk];
     			for(int i = chunkStart; i < chunkStart + CHUNK_SIZE - 4; i++){
     				for(int j = 0; j < getHeight(); j++){
     					child.setBlock(i, j, map[i][j]);
@@ -306,80 +342,13 @@ public class MyLevel extends Level{
 	        return clone;
 	}
 
-   //  public void creat(long seed, int difficulty, int type)
-   //  {
-   //      this.type = type;
-   //      this.difficulty = difficulty;
-
-   //      lastSeed = seed;
-   //      rng = new Random(seed);
-
-   //      //create the start location
-   //      int length = 0;
-   //      length += buildStraight(0, width, true);
-
-   //      //create all of the medium sections
-   //      while (length < width - 64)
-   //      {
-   //          //length += buildZone(length, width - length);
-			// length += buildStraight(length, width-length, false);
-			// length += buildStraight(length, width-length, false);
-			// length += buildHillStraight(length, width-length);
-			// length += buildJump(length, width-length);
-			// length += buildTubes(length, width-length);
-			// length += buildCannons(length, width-length);
-   //      }
-
-   //      //set the end piece
-   //      int floor = height - 1 - rng.nextInt(4);
-
-   //      xExit = length + 8;
-   //      yExit = floor;
-
-   //      // fills the end piece
-   //      for (int x = length; x < width; x++)
-   //      {
-   //          for (int y = 0; y < height; y++)
-   //          {
-   //              if (y >= floor)
-   //              {
-   //                  setBlock(x, y, GROUND);
-   //              }
-   //          }
-   //      }
-
-   //      if (type == LevelInterface.TYPE_CASTLE || type == LevelInterface.TYPE_UNDERGROUND)
-   //      {
-   //          int ceiling = 0;
-   //          int run = 0;
-   //          for (int x = 0; x < width; x++)
-   //          {
-   //              if (run-- <= 0 && x > 4)
-   //              {
-   //                  ceiling = rng.nextInt(4);
-   //                  run = rng.nextInt(4) + 4;
-   //              }
-   //              for (int y = 0; y < height; y++)
-   //              {
-   //                  if ((x > 4 && y <= ceiling) || x < 1)
-   //                  {
-   //                      setBlock(x, y, GROUND);
-   //                  }
-   //              }
-   //          }
-   //      }
-
-   //      fixWalls();
-
-   //  }
-
-
     private int buildJump(int xo, int maxLength)
     {	gaps++;
     	//jl: jump length
     	//js: the number of blocks that are available at either side for free
         int js = rng.nextInt(4) + 2;
         int jl = rng.nextInt(2) + 2;
+        TOTAL_GAP_SIZE += jl;
         int length = js * 2 + jl;
 
         boolean hasStairs = rng.nextInt(3) == 0;
@@ -469,7 +438,7 @@ public class MyLevel extends Level{
         return length;
     }
 
-    private int buildHillStraight(int xo, int maxLength)
+    private int buildHillStraight(int xo, int maxLength, Archetype chunkType)
     {
         int length = rng.nextInt(10) + 10;
         if (length > maxLength) length = maxLength;
@@ -486,7 +455,10 @@ public class MyLevel extends Level{
             }
         }
 
-        addEnemyLine(xo + 1, xo + length - 1, floor - 1);
+        addEnemyLine(xo + 1, xo + length - 1, floor - 1, chunkType);
+        if(chunkType == Archetype.HUNTER){
+            addEnemyLine(xo + 1, xo + length - 1, floor - 1, chunkType);
+        }
 
         int h = floor;
 
@@ -504,7 +476,7 @@ public class MyLevel extends Level{
             else
             {
                 int l = rng.nextInt(5) + 3;
-                if((length - l - 1) <= 0){
+                if((length - l - 2) <= 0){
                     return 0;
                 }
                 int xxo = rng.nextInt(length - l - 2) + xo + 1;
@@ -517,10 +489,16 @@ public class MyLevel extends Level{
                 {
                     occupied[xxo - xo] = true;
                     occupied[xxo - xo + l] = true;
-                    addEnemyLine(xxo, xxo + l, h - 1);
+                    addEnemyLine(xxo, xxo + l, h - 1, chunkType);
+                    if(chunkType == Archetype.HUNTER){
+                        addEnemyLine(xo + 1, xo + length - 1, floor - 1, chunkType);
+                    }
                     if (rng.nextInt(4) == 0)
                     {
-                        decorate(xxo - 1, xxo + l + 1, h);
+                        decorate(xxo - 1, xxo + l + 1, h, chunkType);
+                        if(chunkType == Archetype.HOARDER){
+                            decorate(xxo - 1, xxo + l + 1, h, chunkType);
+                        }
                         keepGoing = false;
                     }
                     for (int x = xxo; x < xxo + l; x++)
@@ -551,11 +529,15 @@ public class MyLevel extends Level{
         return length;
     }
 
-    private void addEnemyLine(int x0, int x1, int y)
+    private void addEnemyLine(int x0, int x1, int y, Archetype chunkType)
     {
         for (int x = x0; x < x1; x++)
         {
-            if (rng.nextInt(35) < difficulty + 1)
+            int die = 35;
+            if(chunkType == Archetype.HUNTER){
+                die = 15;
+            }
+            if (rng.nextInt(die) < difficulty + 1)
             {
                 int type = rng.nextInt(4);
 
@@ -628,7 +610,7 @@ public class MyLevel extends Level{
         return length;
     }
 
-    private int buildStraight(int xo, int maxLength, boolean safe)
+    private int buildStraight(int xo, int maxLength, boolean safe, Archetype chunkType)
     {
         int length = rng.nextInt(10) + 2;
 
@@ -656,14 +638,17 @@ public class MyLevel extends Level{
         {
             if (length > 5)
             {
-                decorate(xo, xo + length, floor);
+                decorate(xo, xo + length, floor, chunkType);
+                if(chunkType == Archetype.HOARDER){
+                    decorate(xo, xo + length, floor,chunkType);
+                }
             }
         }
 
         return length;
     }
 
-    private void decorate(int xStart, int xLength, int floor)
+    private void decorate(int xStart, int xLength, int floor, Archetype chunkType)
     {
     	//if its at the very top, just return
         if (floor < 1)
@@ -673,7 +658,10 @@ public class MyLevel extends Level{
         boolean rocks = true;
 
         //add an enemy line above the box
-        addEnemyLine(xStart + 1, xLength - 1, floor - 1);
+        addEnemyLine(xStart + 1, xLength - 1, floor - 1, chunkType);
+        if(chunkType == Archetype.HUNTER){
+            addEnemyLine(xStart + 1, xLength - 1, floor - 1, chunkType);
+        }
 
         int s = rng.nextInt(4);
         int e = rng.nextInt(4);
