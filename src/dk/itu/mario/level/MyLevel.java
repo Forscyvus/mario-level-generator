@@ -181,11 +181,11 @@ public class MyLevel extends Level{
             if(maxLength < 5) return 0;
             return buildHillStraight(x, maxLength, chunkType);
         case ODDS_TUBES:
-            return buildTubes(x, maxLength);
+            return buildTubes(x, maxLength, chunkType);
         case ODDS_JUMP:
             return buildJump(x, maxLength);
         case ODDS_CANNONS:
-            return buildCannons(x, maxLength);
+            return buildCannons(x, maxLength, chunkType);
         }
         return 0;
     }
@@ -532,7 +532,7 @@ public class MyLevel extends Level{
         }
         plats = findPlatforms(map);
         for(Platform plat : plats){
-            if(rng.nextInt(4) == 0){
+            if(rng.nextInt(10) == 0){
                 for(int x = plat.x + plat.length -1; x >= plat.x; x--){
                     if(getBlock(x, plat.y+2) == 0){
                         setBlock(x, plat.y+2, COIN);
@@ -751,7 +751,7 @@ public class MyLevel extends Level{
         return length;
     }
 
-    private int buildCannons(int xo, int maxLength)
+    private int buildCannons(int xo, int maxLength, Archetype chunkType)
     {
         int length = rng.nextInt(10) + 2;
         if (length > maxLength) length = maxLength;
@@ -788,6 +788,41 @@ public class MyLevel extends Level{
                         else
                         {
                             setBlock(x, y, (byte) (14 + 2 * 16));
+                        }
+                    }
+                }
+            }
+        }
+
+        //extra hills for jumper
+        if(chunkType == Archetype.JUMPER){
+            int height = 3 + rng.nextInt(6);
+            int start = rng.nextInt(2);
+            int end = length - rng.nextInt(2);
+
+            if (start < end){
+                for(int x = start + xo; x < end + xo; x++){
+                    for(int y = getHeight()-1; y >= height; y--){
+                        if(getBlock(x,y)==0){
+                            if(x == start + xo){
+                                if(y == height){
+                                    setBlock(x, y, HILL_TOP_LEFT);
+                                } else {
+                                    setBlock(x, y, HILL_LEFT);
+                                }
+                            } else if(x == end + xo){
+                                if(y == height){
+                                    setBlock(x, y, HILL_TOP_RIGHT);
+                                } else {
+                                    setBlock(x, y, HILL_RIGHT);
+                                }
+                            } else {
+                                if(y == height){
+                                    setBlock(x, y, HILL_TOP);
+                                } else {
+                                    setBlock(x, y, HILL_FILL);
+                                }
+                            }
                         }
                     }
                 }
@@ -919,7 +954,7 @@ public class MyLevel extends Level{
         }
     }
 
-    private int buildTubes(int xo, int maxLength)
+    private int buildTubes(int xo, int maxLength, Archetype chunkType)
     {
         int length = rng.nextInt(10) + 5;
         if (length > maxLength) length = maxLength;
@@ -964,6 +999,41 @@ public class MyLevel extends Level{
                         {
                         	//tube side
                             setBlock(x, y, (byte) (xPic + 1 * 16));
+                        }
+                    }
+                }
+            }
+        }
+
+        //extra hills for jumper
+        if(chunkType == Archetype.JUMPER){
+            int height = 3 + rng.nextInt(6);
+            int start = rng.nextInt(2);
+            int end = length - rng.nextInt(2);
+
+            if (start < end){
+                for(int x = start + xo; x < end + xo; x++){
+                    for(int y = getHeight()-1; y >= height; y--){
+                        if(getBlock(x,y)==0){
+                            if(x == start + xo){
+                                if(y == height){
+                                    setBlock(x, y, HILL_TOP_LEFT);
+                                } else {
+                                    setBlock(x, y, HILL_LEFT);
+                                }
+                            } else if(x == end + xo){
+                                if(y == height){
+                                    setBlock(x, y, HILL_TOP_RIGHT);
+                                } else {
+                                    setBlock(x, y, HILL_RIGHT);
+                                }
+                            } else {
+                                if(y == height){
+                                    setBlock(x, y, HILL_TOP);
+                                } else {
+                                    setBlock(x, y, HILL_FILL);
+                                }
+                            }
                         }
                     }
                 }
