@@ -1,5 +1,6 @@
 package dk.itu.mario.level.generator;
 
+import java.util.Collections;
 import java.util.Random;
 import java.util.ArrayList;
 
@@ -25,8 +26,8 @@ import dk.itu.mario.level.MyLevel;
 
 public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelGenerator{
 
-	private final int INITIALPOPSIZE = 15;
-	private final int CHILDRENPERLEVEL = 5;
+	private final int INITIALPOPSIZE = 30;
+	private final int CHILDRENPERLEVEL = 10;
 	Random rng;
 
 	public MyLevelGenerator() {
@@ -50,15 +51,15 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		
 		int[] playerScores = getPlayerScores(playerMetrics);
 
-		ArrayList<MyLevel> initialPop = new ArrayList<MyLevel>();
+		ArrayList<MyLevel> population = new ArrayList<MyLevel>();
 		for (int i = 0; i < INITIALPOPSIZE; i++) {
-			initialPop.add(new MyLevel(340,15,rng.nextLong(),playerScores,difficulty,LevelInterface.TYPE_OVERGROUND,playerMetrics)); //static method will determine difficulty/etc from metrics
+			population.add(new MyLevel(340,15,rng.nextLong(),playerScores,difficulty,LevelInterface.TYPE_OVERGROUND,playerMetrics)); //static method will determine difficulty/etc from metrics
 		}
 
 		
-		int score = evaluateLevel(initialPop.get(0), playerMetrics, playerScores, difficulty);
-		System.out.print("LEVEL OVERALL SCORE: " );
-		System.out.println(score);
+//		int score = evaluateLevel(population.get(0), playerMetrics, playerScores, difficulty);
+//		System.out.print("LEVEL OVERALL SCORE: " );
+//		System.out.println(score);
 		System.out.print("\nDIFFICULTY: " );
 		System.out.println(difficulty);
 		System.out.print("PLAYER JUMPER SCORE: " );
@@ -68,13 +69,43 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		System.out.print("PLAYER HUNTER SCORE: " );
 		System.out.println(playerScores[2]);
 		
-		return initialPop.get(0);
+		//return initialPop.get(0);
 		
-//		ArrayList<MyLevel> generation = getSuccessors(initialPop);
-//
-//		for (int g = 0; g < 10; g++ { //change to while below level target thresh?
-//			)
-//		}
+		ArrayList<MyLevel> generation = getSuccessors(population);
+
+		int g = 0;
+		int score = 0;
+//		for (int g = 0; g < 10; g++) { //change to while below level target thresh?
+		while (score < 4000) {
+			System.out.print("GENERATION ");
+			System.out.println(g);
+			population = new ArrayList<>();
+			ArrayList<Integer> childScores = new ArrayList<>();
+			ArrayList<Integer> sortedChildScores = new ArrayList<>();
+			for (MyLevel level : generation) {
+				Integer childScore = evaluateLevel(level, playerMetrics, playerScores, difficulty);
+				while (childScores.contains(childScore)){
+					childScore--;
+				}
+				childScores.add(childScore);
+				sortedChildScores.add(childScore);
+			}
+			Collections.sort(sortedChildScores);
+			Collections.reverse(sortedChildScores);
+			for (int i = 0; i < INITIALPOPSIZE; i++){
+				if (childScores.indexOf(sortedChildScores.get(i)) == -1) {
+					System.out.println("noooo");
+				}
+				population.add(generation.get(childScores.indexOf(sortedChildScores.get(i))));
+			}
+			generation = getSuccessors(population);
+			System.out.print("BEST SCORE FOR GENERATION: ");
+			System.out.println(sortedChildScores.get(0));
+			score = sortedChildScores.get(0);
+			g++;
+						
+		}
+		return population.get(0);
 		//DO THE GENETICS loop and evaluate
 
 
@@ -91,7 +122,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		ArrayList<MyLevel> newGeneration = new ArrayList<MyLevel>();
 		for (int i = 0; i < levels.size(); i++) {
 			for (int j = 0; j < CHILDRENPERLEVEL; j++) {
-				int randIndex = rng.nextInt()%levels.size();
+				int randIndex = rng.nextInt(levels.size());
 				newGeneration.add(levels.get(i).generateChild(levels.get(randIndex)));
 			}
 			newGeneration.add(levels.get(i)); //add originals to new gen
@@ -110,8 +141,8 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 			score += evaluateChunk(level, chunkStart, playerScores, difficulty, MyLevel.CHUNK_SIZE);
 		}
 		
-		System.out.print("SUM CHUNK SCORE: " );
-		System.out.println(score);
+//		System.out.print("SUM CHUNK SCORE: " );
+//		System.out.println(score);
 		
 		//tune total gap size to difficulty
 		score += (int) (level.numChunks * (200 - 4*(Math.abs(difficulty*3*level.numChunks - level.TOTAL_GAP_SIZE)))); //magic numbers
@@ -219,8 +250,8 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 				
 				
 				
-				System.out.print("CHUNK HOARDER SCORE: " );
-				System.out.println(score);
+//				System.out.print("CHUNK HOARDER SCORE: " );
+//				System.out.println(score);
 				return score;
 	}
 
@@ -251,7 +282,7 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		int enemiesOnPlats = 0;
 		for (Platform p :plats ){
 			for (int x = p.x; x < p.x + p.length; x++) {
-				for (int y = p.y-1; y > p.y-4; y--) {
+				for (int y = p.y-1; y > p.y-4 && y >= 0; y--) {
 					if (chunksprites[x][y] != null){
 						enemiesOnPlats++;
 					}
@@ -289,8 +320,8 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		//end enemy distro
 		
 		
-		System.out.print("CHUNK HUNTER SCORE: " );
-		System.out.println(score);
+//		System.out.print("CHUNK HUNTER SCORE: " );
+//		System.out.println(score);
 		return score;
 	}
 
@@ -372,8 +403,8 @@ public class MyLevelGenerator extends CustomizedLevelGenerator implements LevelG
 		
 		
 		
-		System.out.print("CHUNK JUMPER SCORE: " );
-		System.out.println(score);
+//		System.out.print("CHUNK JUMPER SCORE: " );
+//		System.out.println(score);
 				
 		return score;
 	}
